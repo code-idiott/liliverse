@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LILIA // Code & Lens</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            bg: '#08070B',
+                            card: '#110F18',
+                            accent: '#8B5CF6', /* Purple */
+                            neonBlue: '#06B6D4', /* Cyan */
+                            neonPink: '#EC4899', /* Pink */
+                            textMuted: '#9CA3AF',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow-slow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 10px rgba(139, 92, 246, 0.2)' },
+                            '100%': { boxShadow: '0 0 25px rgba(139, 92, 246, 0.6)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #08070B;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2D2A3E;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8B5CF6;
+        }
+        
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(17, 15, 24, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glow-hover:hover {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+            border-color: rgba(6, 182, 212, 0.6);
+        }
+
+        /* Hero Text Glowing Aura */
+        .neon-text-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5), 0 0 20px rgba(6, 182, 212, 0.3);
+        }
+        .neon-text-purple {
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Smooth tab transition */
+        .tab-content {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-brand-bg text-gray-100 font-sans overflow-x-hidden selection:bg-brand-accent selection:text-white">
+
+    <!-- The persistent interactive 3D Canvas behind the entire page content -->
+    <div class="fixed inset-0 z-0 pointer-events-none" id="canvas-container"></div>
+
+    <header class="fixed top-0 left-0 w-full z-50 glass-panel border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-accent to-brand-neonBlue flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-brand-accent/20 transition-transform group-hover:scale-105">
+                    L
+                </div>
+                <div>
+                    <span class="font-bold tracking-wider text-xl bg-gradient-to-r from-white via-gray-200 to-brand-neonBlue bg-clip-text text-transparent">LILIA</span>
+                    <span class="block text-[10px] text-brand-neonBlue tracking-[0.2em] font-mono leading-none">ENGINEER // PHOTOGRAPHER</span>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="text-sm font-medium text-gray-300 hover:text-brand-neonBlue tracking-wide transition-colors">About</a>
+                <a href="#engineering" class="text-sm font-medium text-gray-300 hover:text-brand-accent tracking-wide transition-colors">Engineering</a>
+                <a href="#photography" class="text-sm font-medium text-gray-300 hover:text-brand-neonPink tracking-wide transition-colors">Photography</a>
+                <a href="#contact" class="px-5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-sm font-medium tracking-wide border border-white/10 hover:border-brand-neonBlue/50 transition-all duration-300 shadow-sm shadow-black/40">Get in Touch</a>
+            </nav>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button id="mobile-menu-btn" class="md:hidden flex items-center text-gray-300 hover:text-white focus:outline-none">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-b border-white/10 absolute top-20 left-0 w-full flex flex-col p-6 space-y-4">
+            <a href="#about" class="mobile-nav-link text-lg text-gray-300 hover:text-brand-neonBlue py-2 border-b border-white/5">About</a>
+            <a href="#engineering" class="mobile-nav-link text-lg text-gray-300 hover:text-brand-accent py-2 border-b border-white/5">Engineering</a>
+            <a href="#photography" class="mobile-nav-link text-lg text-gray-300 hover:text-brand-neonPink py-2 border-b border-white/5">Photography Portfolio</a>
+            <a href="#contact" class="mobile-nav-link inline-block text-center py-3 rounded-lg bg-gradient-to-r from-brand-accent to-brand-neonBlue text-white font-medium shadow-md shadow-brand-accent/20">Get in Touch</a>
+        </div>
+    </header>
+
+    <section id="hero" class="relative min-h-screen flex items-center justify-center px-6 pt-24 select-none overflow-hidden z-10 pointer-events-none">
+        <div class="max-w-5xl mx-auto text-center pointer-events-auto mt-10">
+            <!-- Greeting Tag -->
+            <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-brand-neonBlue tracking-wider uppercase mb-6 shadow-inner animate-pulse-slow">
+                <span class="w-2 h-2 rounded-full bg-brand-neonBlue inline-block animate-ping"></span>
+                <span>System Status: Online & Capturing</span>
+            </div>
+            
+            <!-- Dual Identity Headline -->
+            <h1 class="text-4xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 leading-[1.1]">
+                <span class="block text-gray-400 font-light text-2xl md:text-3xl tracking-[0.25em] uppercase font-sans mb-3">Hi, I am Lilia</span>
+                <span class="block text-white">Synthesizing <span class="text-brand-neonBlue neon-text-cyan">Logic</span></span>
+                <span class="block bg-gradient-to-r from-brand-accent to-brand-neonPink bg-clip-text text-transparent">Chasing <span class="neon-text-purple text-brand-accent">Light</span></span>
+            </h1>
+
+            <!-- Narrative Intro -->
+            <p class="max-w-2xl mx-auto text-gray-400 text-base md:text-lg mb-10 leading-relaxed font-sans">
+                A California-based <strong class="text-white font-semibold">Computer Science Engineer</strong> specializing in computer vision, deep neural networks, and interactive graphics. Outside the compilers, I capture stories through glass as a <strong class="text-white font-semibold">Fine-Art & Urban Photographer</strong>.
+            </p>
+
+            <!-- Call to Actions -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#engineering" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-brand-accent hover:bg-brand-accent/90 text-white font-semibold tracking-wide shadow-lg shadow-brand-accent/30 flex items-center justify-center space-x-2 transform hover:-translate-y-1 transition-all duration-300">
+                    <i data-lucide="terminal" class="w-5 h-5"></i>
+                    <span>Explore Engineering</span>
+                </a>
+                <a href="#photography" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-brand-neonPink/50 text-white font-semibold tracking-wide flex items-center justify-center space-x-2 transform hover:-translate-y-1 transition-all duration-300 shadow-md">
+                    <i data-lucide="camera" class="w-5 h-5 text-brand-neonPink"></i>
+                    <span>View Photography</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto">
+            <span class="text-[10px] uppercase tracking-[0.3em] text-brand-textMuted mb-2 font-mono">Scroll Down</span>
+            <div class="w-6 h-10 rounded-full border border-white/20 flex justify-center p-1">
+                <div class="w-1.5 h-3 bg-brand-neonBlue rounded-full animate-bounce"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="relative z-10 py-24 md:py-32 bg-gradient-to-b from-brand-bg via-brand-card/30 to-brand-bg px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Section Header -->
+            <div class="text-center md:text-left mb-16 max-w-xl">
+                <span class="text-xs uppercase tracking-[0.4em] font-mono text-brand-accent font-semibold block mb-2">01 // IDENTITY</span>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">The Dual Core</h2>
+                <div class="h-1 w-20 bg-gradient-to-r from-brand-accent to-brand-neonBlue mt-4 rounded-full"></div>
+            </div>
+
+            <!-- Bio Showcase -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left: Professional Narrative -->
+                <div class="lg:col-span-7 space-y-6">
+                    <h3 class="text-2xl font-bold text-white tracking-wide">
+                        Bridging deterministic systems with the unpredictable beauty of life.
+                    </h3>
+                    <p class="text-brand-textMuted leading-relaxed text-base md:text-lg">
+                        After graduating with an honors degree in <span class="text-white font-semibold">Computer Science & Engineering</span>, I spent years developing high-performance image processing software and web architectures. However, code alone couldn't encapsulate everything I visualised. 
+                    </p>
+                    <p class="text-brand-textMuted leading-relaxed text-base md:text-lg">
+                        I picked up a camera, realizing that a digital sensor is just a matrix waiting to be populated. The lens became my custom input function, and light became the algorithm. Today, my photography informs my computer vision research, and my CS engineering skills let me build innovative, real-time photographic experiences.
+                    </p>
+
+                    <!-- Fast Facts Grid -->
+                    <div class="grid grid-cols-2 gap-4 pt-4">
+                        <div class="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-brand-neonBlue/30 transition-all duration-300">
+                            <span class="text-xs font-mono text-brand-neonBlue uppercase tracking-wider block mb-1">Based In</span>
+                            <span class="text-lg font-semibold text-white">San Francisco, CA</span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-brand-accent/30 transition-all duration-300">
+                            <span class="text-xs font-mono text-brand-accent uppercase tracking-wider block mb-1">Gear of Choice</span>
+                            <span class="text-lg font-semibold text-white">Sony α7R V // 24-70mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: High Tech Stats & Photo Visual Frame -->
+                <div class="lg:col-span-5">
+                    <div class="relative glass-panel rounded-2xl p-6 border border-white/10 shadow-2xl relative overflow-hidden group">
+                        <!-- Holographic ambient background lights inside container -->
+                        <div class="absolute -top-12 -left-12 w-48 h-48 bg-brand-accent/20 rounded-full filter blur-3xl pointer-events-none group-hover:bg-brand-accent/30 transition-colors duration-500"></div>
+                        <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-brand-neonBlue/10 rounded-full filter blur-3xl pointer-events-none group-hover:bg-brand-neonBlue/20 transition-colors duration-500"></div>
+                        
+                        <!-- Core skill metrics -->
+                        <div class="space-y-6 relative z-10">
+                            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                                <span class="font-mono text-xs text-brand-neonBlue uppercase tracking-widest">SYSTEM SCHEDULER</span>
+                                <span class="text-xs text-green-400 font-mono flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-ping"></span> Optimized
+                                </span>
+                            </div>
+
+                            <!-- Interactive Progress Bars -->
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between text-sm font-mono text-gray-300 mb-1.5">
+                                        <span>Computer Vision / OpenCV</span>
+                                        <span class="text-brand-neonBlue font-semibold">92%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-brand-accent to-brand-neonBlue rounded-full" style="width: 92%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-sm font-mono text-gray-300 mb-1.5">
+                                        <span>WebGL / Three.js / Graphics</span>
+                                        <span class="text-brand-neonBlue font-semibold">88%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-brand-accent to-brand-neonBlue rounded-full" style="width: 88%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-sm font-mono text-gray-300 mb-1.5">
+                                        <span>Fullstack Engineering (React/Node)</span>
+                                        <span class="text-brand-neonBlue font-semibold">95%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-brand-accent to-brand-neonBlue rounded-full" style="width: 95%"></div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-sm font-mono text-gray-300 mb-1.5">
+                                        <span>Post-Processing & Color Theory</span>
+                                        <span class="text-brand-neonPink font-semibold">90%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-brand-accent to-brand-neonPink rounded-full" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center pt-2 font-mono text-xs text-brand-textMuted tracking-wider border-t border-white/5">
+                                MULTI-THREADED COGNITION ACTIVE
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="engineering" class="relative z-10 py-24 md:py-32 bg-brand-bg px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Section Header -->
+            <div class="text-center md:text-left mb-16 max-w-xl">
+                <span class="text-xs uppercase tracking-[0.4em] font-mono text-brand-neonBlue font-semibold block mb-2">02 // ARCHITECTURE</span>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Software Engineering</h2>
+                <div class="h-1 w-20 bg-gradient-to-r from-brand-neonBlue to-brand-accent mt-4 rounded-full"></div>
+            </div>
+
+            <!-- Shell Simulator & Coding Projects -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Left: Interactive Dev Console Interface -->
+                <div class="lg:col-span-4 flex flex-col justify-between glass-panel rounded-2xl border border-white/10 shadow-2xl overflow-hidden min-h-[400px]">
+                    <div class="bg-black/50 px-4 py-3 flex items-center justify-between border-b border-white/5">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                        </div>
+                        <span class="text-xs font-mono text-brand-textMuted">lilia@core-v5:~</span>
+                        <i data-lucide="terminal" class="w-4 h-4 text-brand-neonBlue"></i>
+                    </div>
+
+                    <!-- Terminal Content -->
+                    <div class="p-6 flex-1 font-mono text-sm space-y-4 overflow-y-auto" id="terminal-screen">
+                        <div>
+                            <span class="text-brand-neonBlue">lilia@core-v5:~$</span> <span class="text-white">whoami</span>
+                            <p class="text-brand-textMuted mt-1">Lilia // Computer Science Engineer & System Architect. Seeking optimal balance between computational power and artistic expression.</p>
+                        </div>
+                        <div>
+                            <span class="text-brand-neonBlue">lilia@core-v5:~$</span> <span class="text-white">cat stack.config</span>
+                            <p class="text-brand-accent mt-1">Core Tech: Rust, TypeScript, C++, Python, WebGL, PyTorch, TailwindCSS, AWS, Kubernetes, WebRTC.</p>
+                        </div>
+                        <div id="terminal-custom-output">
+                            <span class="text-brand-neonBlue">lilia@core-v5:~$</span> <span class="text-brand-textMuted">Click projects on the right to read internal configurations...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Portfolio Projects Grid (Interactive) -->
+                <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Project 1 -->
+                    <div class="project-card glass-panel rounded-2xl p-6 border border-white/5 hover:border-brand-neonBlue/40 glow-hover transition-all duration-300 cursor-pointer group flex flex-col justify-between" 
+                         data-project-name="ApertureJS" 
+                         data-project-tech="Rust, WebGL, WebAssembly" 
+                         data-project-desc="High-performance client-side image processing and rendering pipelines compiled to Wasm. Operates real-time 3D kernel matrix visual filters directly inside web browsers.">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-brand-neonBlue/10 border border-brand-neonBlue/20 flex items-center justify-center text-brand-neonBlue group-hover:scale-110 transition-transform">
+                                    <i data-lucide="cpu" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-mono text-brand-neonBlue px-2.5 py-1 rounded-full bg-brand-neonBlue/5 border border-brand-neonBlue/10">Active</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brand-neonBlue transition-colors">ApertureJS</h3>
+                            <p class="text-brand-textMuted text-sm leading-relaxed mb-4">
+                                WebAssembly powered real-time photographic processing pipeline capable of executing high-order 3D convolution kernels in-browser at 60 FPS.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-white/5 font-mono text-xs text-brand-textMuted">
+                            <span>Rust // WebAssembly // Canvas</span>
+                            <i data-lucide="external-link" class="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="project-card glass-panel rounded-2xl p-6 border border-white/5 hover:border-brand-accent/40 glow-hover transition-all duration-300 cursor-pointer group flex flex-col justify-between"
+                         data-project-name="ShutterChain" 
+                         data-project-tech="Solidity, TypeScript, Next.js" 
+                         data-project-desc="A decentralized photographic provenance index. Uses immutable cryptographic state logs to protect copyrights, track distribution trails, and authenticate camera metadata.">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent group-hover:scale-110 transition-transform">
+                                    <i data-lucide="database" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-mono text-brand-accent px-2.5 py-1 rounded-full bg-brand-accent/5 border border-brand-accent/10">Finished</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brand-accent transition-colors">ShutterChain</h3>
+                            <p class="text-brand-textMuted text-sm leading-relaxed mb-4">
+                                Decentralized cryptographic protocol ensuring image licensing authenticity and tracking photo provenance data immutably.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-white/5 font-mono text-xs text-brand-textMuted">
+                            <span>Solidity // Web3 // NextJS</span>
+                            <i data-lucide="external-link" class="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 -->
+                    <div class="project-card glass-panel rounded-2xl p-6 border border-white/5 hover:border-brand-neonPink/40 glow-hover transition-all duration-300 cursor-pointer group flex flex-col justify-between"
+                         data-project-name="PBR-RayTracer" 
+                         data-project-tech="C++ 20, CUDA" 
+                         data-project-desc="Custom 3D physically-based ray tracer. Capable of simulating complex lens configurations, chromatic aberration, sensor sensor noise patterns, and bokeh circles with incredible spatial accuracy.">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-brand-neonPink/10 border border-brand-neonPink/20 flex items-center justify-center text-brand-neonPink group-hover:scale-110 transition-transform">
+                                    <i data-lucide="box" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-mono text-brand-neonPink px-2.5 py-1 rounded-full bg-brand-neonPink/5 border border-brand-neonPink/10">Prototype</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brand-neonPink transition-colors">PBR Ray-Tracer</h3>
+                            <p class="text-brand-textMuted text-sm leading-relaxed mb-4">
+                                Physically-based ray tracer engineered to simulate detailed optics aberration, lens geometry distortion, and highly realistic synthetic bokeh rendering.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-white/5 font-mono text-xs text-brand-textMuted">
+                            <span>C++ 20 // OptiX // Core Ray</span>
+                            <i data-lucide="external-link" class="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </div>
+
+                    <!-- Project 4 -->
+                    <div class="project-card glass-panel rounded-2xl p-6 border border-white/5 hover:border-brand-neonBlue/40 glow-hover transition-all duration-300 cursor-pointer group flex flex-col justify-between"
+                         data-project-name="AeroCapture" 
+                         data-project-tech="Python, PyTorch, Edge Nano" 
+                         data-project-desc="Edge machine learning algorithms deployed on drone hardware for real-time tracking, golden hour sky color prediction, and automated frame balance evaluation.">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-brand-neonBlue/10 border border-brand-neonBlue/20 flex items-center justify-center text-brand-neonBlue group-hover:scale-110 transition-transform">
+                                    <i data-lucide="compass" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-xs font-mono text-brand-neonBlue px-2.5 py-1 rounded-full bg-brand-neonBlue/5 border border-brand-neonBlue/10">Research</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brand-neonBlue transition-colors">AeroCapture AI</h3>
+                            <p class="text-brand-textMuted text-sm leading-relaxed mb-4">
+                                Edge computing visual AI designed to mount directly onto custom camera drones, predicting optimum framing vectors and golden-hour lighting windows.
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-white/5 font-mono text-xs text-brand-textMuted">
+                            <span>Python // PyTorch // Embedded</span>
+                            <i data-lucide="external-link" class="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="photography" class="relative z-10 py-24 md:py-32 bg-gradient-to-b from-brand-bg via-brand-card/20 to-brand-bg px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Section Header & Filter Controls -->
+            <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-16 gap-8">
+                <div class="max-w-xl">
+                    <span class="text-xs uppercase tracking-[0.4em] font-mono text-brand-neonPink font-semibold block mb-2">03 // REFLECTION</span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Photographic Eye</h2>
+                    <div class="h-1 w-20 bg-gradient-to-r from-brand-neonPink to-brand-accent mt-4 rounded-full"></div>
+                    <p class="text-brand-textMuted text-sm mt-4">
+                        A curated showcase of captured moments exploring raw urban spaces, futuristic lights, and vast organic terrains. Click on any photo to load full dynamic metadata.
+                    </p>
+                </div>
+
+                <!-- Interactive Filters -->
+                <div class="flex flex-wrap gap-2 glass-panel p-1.5 rounded-xl border border-white/10 self-start md:self-auto font-mono text-xs">
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-brand-neonPink text-white font-medium transition-all" data-category="all">All Photos</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-brand-textMuted hover:text-white transition-all" data-category="urban">Urban & Cyberpunk</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-brand-textMuted hover:text-white transition-all" data-category="nature">Vast Landscape</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-brand-textMuted hover:text-white transition-all" data-category="macro">Macro & Optical</button>
+                </div>
+            </div>
+
+            <!-- Photographic Grid - 10 photographs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="photo-grid">
+                
+                <!-- Photo 1 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="urban"
+                     data-img="https://images.unsplash.com/photo-1519501025264-65ba15a82390" 
+                     data-title="Neon Genesis Tokyo" 
+                     data-desc="Deep street corridors in Tokyo radiating high contrast neon pinks and cyan blue undertones. High visual dynamic range capture during heavy mist."
+                     data-shutter="1/160s" data-aperture="f/1.8" data-iso="800" data-focal="35mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=600&auto=format&fit=crop" 
+                             alt="Neon Genesis Tokyo" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Neon+Genesis+Tokyo'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Neon Genesis Tokyo</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-neonPink bg-brand-neonPink/5 px-2 py-0.5 rounded border border-brand-neonPink/10">URBAN</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 800</span>
+                            <span>35mm f/1.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 2 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="nature"
+                     data-img="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b" 
+                     data-title="Peak Majesty" 
+                     data-desc="Layered peaks of majestic mountain ranges emerging from a low sea of dynamic clouds. Shot at high elevation during early golden light."
+                     data-shutter="1/250s" data-aperture="f/8.0" data-iso="100" data-focal="70mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=600&auto=format&fit=crop" 
+                             alt="Peak Majesty" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Peak+Majesty'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Peak Majesty</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-accent bg-brand-accent/5 px-2 py-0.5 rounded border border-brand-accent/10">NATURE</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 100</span>
+                            <span>70mm f/8.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 3 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="macro"
+                     data-img="https://images.unsplash.com/photo-1534067783941-51c9c23eccfd" 
+                     data-title="Refracted Rain" 
+                     data-desc="Intricate macro capture of natural dew drops glistening on fresh foliage, creating miniature crystal lens structures reflecting sunlight."
+                     data-shutter="1/400s" data-aperture="f/2.8" data-iso="200" data-focal="90mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1534067783941-51c9c23eccfd?q=80&w=600&auto=format&fit=crop" 
+                             alt="Refracted Rain" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Refracted+Rain'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Refracted Rain</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-neonBlue bg-brand-neonBlue/5 px-2 py-0.5 rounded border border-brand-neonBlue/10">MACRO</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 200</span>
+                            <span>90mm f/2.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 4 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="urban"
+                     data-img="https://images.unsplash.com/photo-1515621061946-eff1c2a352bd" 
+                     data-title="Monolithic Shadows" 
+                     data-desc="High geometry modern architecture cutting through clear skies. Capturing dramatic shadows, parallel beams, and metallic textures."
+                     data-shutter="1/500s" data-aperture="f/5.6" data-iso="100" data-focal="24mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1515621061946-eff1c2a352bd?q=80&w=600&auto=format&fit=crop" 
+                             alt="Monolithic Shadows" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Monolithic+Shadows'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Monolithic Shadows</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-neonPink bg-brand-neonPink/5 px-2 py-0.5 rounded border border-brand-neonPink/10">URBAN</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 100</span>
+                            <span>24mm f/5.6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 5 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="nature"
+                     data-img="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0" 
+                     data-title="Cosmic Dust Constellation" 
+                     data-desc="Deep field astronomical view of the core galactic arm. Long exposure sequence stitched dynamically with advanced noise filters."
+                     data-shutter="25.0s" data-aperture="f/1.4" data-iso="1600" data-focal="20mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?q=80&w=600&auto=format&fit=crop" 
+                             alt="Cosmic Dust Constellation" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Cosmic+Dust+Constellation'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Cosmic Dust</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-accent bg-brand-accent/5 px-2 py-0.5 rounded border border-brand-accent/10">NATURE</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 1600</span>
+                            <span>20mm f/1.4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 6 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="nature"
+                     data-img="https://images.unsplash.com/photo-1448375240586-882707db888b" 
+                     data-title="Whispering Woodlands" 
+                     data-desc="Thick, dense redwood forests layered with light morning mist piercing the high canopy. Natural cold green hues and deep earth tones."
+                     data-shutter="1/80s" data-aperture="f/4.0" data-iso="400" data-focal="50mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=600&auto=format&fit=crop" 
+                             alt="Whispering Woodlands" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Whispering+Woodlands'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Whispering Woodlands</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-accent bg-brand-accent/5 px-2 py-0.5 rounded border border-brand-accent/10">NATURE</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 400</span>
+                            <span>50mm f/4.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 7 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="nature"
+                     data-img="https://images.unsplash.com/photo-1505118380757-91f5f5632de0" 
+                     data-title="Pacific Abyss" 
+                     data-desc="An aerial perspectives capturing turquoise tidal patterns. Focuses on natural dynamic motion, fluid gradients, and coastal geometry."
+                     data-shutter="1/1000s" data-aperture="f/2.8" data-iso="100" data-focal="24mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=600&auto=format&fit=crop" 
+                             alt="Pacific Abyss" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Pacific+Abyss'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Pacific Abyss</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-accent bg-brand-accent/5 px-2 py-0.5 rounded border border-brand-accent/10">NATURE</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 100</span>
+                            <span>24mm f/2.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 8 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="urban"
+                     data-img="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" 
+                     data-title="Geometric Atrium" 
+                     data-desc="Intriguing geometric architecture displaying structured glass triangles on an overhead skylight. Focuses on lines, convergence and symmetry."
+                     data-shutter="1/200s" data-aperture="f/5.6" data-iso="200" data-focal="16mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop" 
+                             alt="Geometric Atrium" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Geometric+Atrium'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Geometric Atrium</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-neonPink bg-brand-neonPink/5 px-2 py-0.5 rounded border border-brand-neonPink/10">URBAN</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 200</span>
+                            <span>16mm f/5.6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 9 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="macro"
+                     data-img="https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7" 
+                     data-title="Vaporwave Prisms" 
+                     data-desc="Intricate refraction prisms interacting with highly saturated light streams, splitting light into hyper-defined magenta and blue spectra."
+                     data-shutter="1/125s" data-aperture="f/2.0" data-iso="400" data-focal="50mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?q=80&w=600&auto=format&fit=crop" 
+                             alt="Vaporwave Prisms" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Vaporwave+Prisms'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Vaporwave Prisms</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-neonBlue bg-brand-neonBlue/5 px-2 py-0.5 rounded border border-brand-neonBlue/10">MACRO</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 400</span>
+                            <span>50mm f/2.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 10 -->
+                <div class="photo-item glass-panel rounded-2xl overflow-hidden group border border-white/5 hover:border-brand-neonPink/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-500 cursor-pointer" 
+                     data-category="macro"
+                     data-img="https://images.unsplash.com/photo-1550751827-4bd374c3f58b" 
+                     data-title="Circuit Grid Vectors" 
+                     data-desc="Ultra macro detail of computer circuitry traces. Glows dynamically highlighting gold solder pads and micro-architecture paths."
+                     data-shutter="1/60s" data-aperture="f/4.5" data-iso="640" data-focal="100mm">
+                    <div class="relative overflow-hidden aspect-[4/3]">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop" 
+                             alt="Circuit Grid Vectors" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/600x450/110F18/9CA3AF?text=Circuit+Grid+Vectors'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                            <span class="text-xs font-mono text-brand-neonPink uppercase tracking-widest bg-brand-neonPink/15 px-3 py-1 rounded-full border border-brand-neonPink/30 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3 h-3"></i> View Details
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-5 border-t border-white/5">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-lg group-hover:text-brand-neonPink transition-colors">Circuit Grid Vectors</h3>
+                            <span class="text-[10px] font-mono uppercase text-brand-neonBlue bg-brand-neonBlue/5 px-2 py-0.5 rounded border border-brand-neonBlue/10">MACRO</span>
+                        </div>
+                        <div class="flex justify-between font-mono text-xs text-brand-textMuted">
+                            <span>ISO 640</span>
+                            <span>100mm f/4.5</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom overlay lightbox to mimic camera monitor screen -->
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden items-center justify-center p-4">
+        <button id="lightbox-close" class="absolute top-6 right-6 text-white hover:text-brand-neonPink focus:outline-none z-50">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+
+        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-brand-card rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+            
+            <!-- Left: Curated Photo Display Area -->
+            <div class="lg:col-span-8 flex items-center justify-center p-4 bg-black/40 min-h-[300px] max-h-[70vh]">
+                <img id="lightbox-img" src="" alt="Active View" class="max-w-full max-h-[60vh] object-contain rounded-lg">
+            </div>
+
+            <!-- Right: Simulated Camera Live Monitor (EXIF Metadata) -->
+            <div class="lg:col-span-4 p-6 lg:p-8 space-y-6">
+                <div>
+                    <span id="lightbox-category" class="text-[10px] font-mono uppercase tracking-[0.2em] text-brand-neonPink px-2.5 py-1 rounded bg-brand-neonPink/10 border border-brand-neonPink/20 inline-block mb-3">URBAN</span>
+                    <h3 id="lightbox-title" class="text-2xl font-black text-white">Neon Genesis Tokyo</h3>
+                    <p id="lightbox-desc" class="text-brand-textMuted text-sm mt-2 leading-relaxed">
+                        Deep street corridors in Tokyo radiating high contrast neon pinks and cyan blue undertones.
+                    </p>
+                </div>
+
+                <!-- Live Camera EXIF Display Box -->
+                <div class="glass-panel rounded-xl p-4 border border-white/10 bg-black/50 space-y-4">
+                    <div class="flex items-center space-x-2 border-b border-white/5 pb-2 text-brand-neonBlue">
+                        <i data-lucide="cpu" class="w-4 h-4"></i>
+                        <span class="font-mono text-xs tracking-wider uppercase">Camera Core Status // EXIF</span>
+                    </div>
+
+                    <!-- EXIF Metrics -->
+                    <div class="grid grid-cols-2 gap-4 font-mono text-xs">
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-brand-textMuted block text-[10px] uppercase">Shutter</span>
+                            <span id="exif-shutter" class="text-white font-bold text-sm">1/160s</span>
+                        </div>
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-brand-textMuted block text-[10px] uppercase">Aperture</span>
+                            <span id="exif-aperture" class="text-white font-bold text-sm">f/1.8</span>
+                        </div>
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-brand-textMuted block text-[10px] uppercase">Sensitivity</span>
+                            <span id="exif-iso" class="text-white font-bold text-sm">ISO 800</span>
+                        </div>
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-brand-textMuted block text-[10px] uppercase">Focal Length</span>
+                            <span id="exif-focal" class="text-white font-bold text-sm">35mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interaction CTA in Lightbox -->
+                <div class="pt-4 border-t border-white/5 flex items-center justify-between">
+                    <span class="text-xs text-brand-textMuted flex items-center gap-1.5">
+                        <i data-lucide="copyright" class="w-4 h-4"></i> Lilia Photography
+                    </span>
+                    <button id="lightbox-copy" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white font-mono text-xs border border-white/10 hover:border-brand-neonPink/50 transition-all flex items-center gap-2">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Photo URL
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <section id="contact" class="relative z-10 py-24 md:py-32 bg-brand-bg px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                
+                <!-- Left: Contact Context Info -->
+                <div class="lg:col-span-5 space-y-6">
+                    <span class="text-xs uppercase tracking-[0.4em] font-mono text-brand-neonBlue font-semibold block">04 // INTERCONNECT</span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Begin Dialogue</h2>
+                    <div class="h-1 w-20 bg-gradient-to-r from-brand-neonBlue to-brand-neonPink mt-4 rounded-full"></div>
+                    
+                    <p class="text-brand-textMuted leading-relaxed text-base md:text-lg">
+                        Have an innovative project requiring graphics compilation, fullstack engineering, or high-end architectural systems? Or looking to collaborate on creative visual photo-campaigns, urban galleries, or licensable fine-art photography?
+                    </p>
+
+                    <p class="text-brand-textMuted leading-relaxed text-base md:text-lg">
+                        Drop me a transmission below. Let's merge standard protocols.
+                    </p>
+
+                    <!-- Direct Protocols -->
+                    <div class="space-y-4 pt-4 font-mono text-sm">
+                        <div class="flex items-center space-x-3 text-gray-300">
+                            <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-brand-neonBlue border border-white/5">
+                                <i data-lucide="mail" class="w-5 h-5"></i>
+                            </div>
+                            <span>lilia@lensandcode.io</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-gray-300">
+                            <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-brand-neonPink border border-white/5">
+                                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                            </div>
+                            <span>San Francisco Peninsula, CA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Glassmorphism Interactive Transmission Form -->
+                <div class="lg:col-span-7">
+                    <form id="contact-form" class="glass-panel rounded-2xl p-6 md:p-8 border border-white/10 space-y-6 shadow-2xl relative overflow-hidden">
+                        <div id="form-success" class="hidden absolute inset-0 bg-brand-card/95 z-30 flex flex-col items-center justify-center text-center p-6">
+                            <div class="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 mb-4 animate-bounce">
+                                <i data-lucide="check" class="w-8 h-8"></i>
+                            </div>
+                            <h4 class="text-2xl font-bold text-white mb-2">Transmission Received</h4>
+                            <p class="text-brand-textMuted max-w-sm text-sm">
+                                Lilia's inbox system scheduler has logged your handshake. Expect a computational response window within 24 hours.
+                            </p>
+                        </div>
+
+                        <!-- Grid Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block font-mono text-xs text-brand-textMuted uppercase tracking-wider mb-2">Client Identity</label>
+                                <input type="text" id="contact-name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-neonBlue focus:ring-1 focus:ring-brand-neonBlue transition-all font-sans" placeholder="Your Name">
+                            </div>
+                            <div>
+                                <label class="block font-mono text-xs text-brand-textMuted uppercase tracking-wider mb-2">Transmission Endpoint</label>
+                                <input type="email" id="contact-email" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-neonBlue focus:ring-1 focus:ring-brand-neonBlue transition-all font-sans" placeholder="your@email.com">
+                            </div>
+                        </div>
+
+                        <!-- Dropdowns -->
+                        <div>
+                            <label class="block font-mono text-xs text-brand-textMuted uppercase tracking-wider mb-2">Transmission Intent</label>
+                            <select id="contact-intent" class="w-full bg-brand-card border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-neonBlue focus:ring-1 focus:ring-brand-neonBlue transition-all font-mono text-sm">
+                                <option value="engineering" class="bg-brand-card text-white">Software & Computer Vision Consultancy</option>
+                                <option value="photography" class="bg-brand-card text-white">Photographic Assignment & Commercials</option>
+                                <option value="both" class="bg-brand-card text-white">Symmetric Hybrid Visual Project</option>
+                                <option value="collab" class="bg-brand-card text-white">General Inquiry // Hello</option>
+                            </select>
+                        </div>
+
+                        <!-- Message -->
+                        <div>
+                            <label class="block font-mono text-xs text-brand-textMuted uppercase tracking-wider mb-2">Message Payload</label>
+                            <textarea id="contact-msg" required rows="5" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-neonBlue focus:ring-1 focus:ring-brand-neonBlue transition-all font-sans" placeholder="Draft your detailed message payload here..."></textarea>
+                        </div>
+
+                        <!-- Action Submit Button -->
+                        <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-brand-accent to-brand-neonBlue text-white font-bold tracking-wider uppercase shadow-lg shadow-brand-accent/20 hover:shadow-brand-accent/35 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center space-x-2">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                            <span>Send Transmission</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="relative z-10 border-t border-white/5 py-12 bg-black/60 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="text-center md:text-left">
+                <span class="block font-mono text-xs text-brand-textMuted">© 2026 LILIA. All Rights Cryptographically Reserved.</span>
+                <span class="block text-[10px] text-brand-neonBlue font-mono mt-1">Compiled with precision & captured in RAW.</span>
+            </div>
+
+            <!-- Social Ports -->
+            <div class="flex items-center space-x-4">
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-neonBlue/30 text-gray-300 hover:text-brand-neonBlue flex items-center justify-center transition-all duration-300">
+                    <i data-lucide="github" class="w-5 h-5"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-neonPink/30 text-gray-300 hover:text-brand-neonPink flex items-center justify-center transition-all duration-300">
+                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-accent/30 text-gray-300 hover:text-brand-accent flex items-center justify-center transition-all duration-300">
+                    <i data-lucide="linkedin" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Load Three.js r128 Library from cdn -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let scene, camera, renderer, particleSystem, wireframeCamera;
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        function init3DScene() {
+            const container = document.getElementById('canvas-container');
+            
+            // 1. Scene Setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x08070B, 0.0015);
+
+            // 2. Camera Setup
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 1000;
+
+            // 3. Renderer Setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // 4. Generate Star/Data Particle Constellation
+            const particleCount = 2500;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            const colorPalette = [
+                new THREE.Color(0x8B5CF6), // Purple Accent
+                new THREE.Color(0x06B6D4), // Cyan Neon
+                new THREE.Color(0xEC4899), // Pink Neon
+                new THREE.Color(0xffffff)  // Pure light
+            ];
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                // Spherical cluster logic
+                const radius = Math.random() * 2000 + 100;
+                const theta = THREE.MathUtils.randFloatSpread(360);
+                const phi = THREE.MathUtils.randFloatSpread(180);
+
+                positions[i] = radius * Math.sin(theta) * Math.cos(phi);
+                positions[i + 1] = radius * Math.sin(theta) * Math.sin(phi);
+                positions[i + 2] = radius * Math.cos(theta);
+
+                // Assign random colors from the branding visual system
+                const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+                colors[i] = randomColor.r;
+                colors[i + 1] = randomColor.g;
+                colors[i + 2] = randomColor.b;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            // Custom procedural shader style canvas circle texture for particles
+            const pMaterial = new THREE.PointsMaterial({
+                size: 4.5,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.65,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            });
+
+            particleSystem = new THREE.Points(geometry, pMaterial);
+            scene.add(particleSystem);
+
+            // 5. Build 3D Wireframe Lens Core (Photography Symbolism)
+            const lensGeometry = new THREE.IcosahedronGeometry(180, 2);
+            const wireframeMaterial = new THREE.MeshBasicMaterial({
+                color: 0x8B5CF6,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending
+            });
+            
+            wireframeCamera = new THREE.Mesh(lensGeometry, wireframeMaterial);
+            scene.add(wireframeCamera);
+
+            // Add inner concentric core
+            const innerCoreGeom = new THREE.TorusGeometry(100, 15, 8, 32);
+            const innerCoreMat = new THREE.MeshBasicMaterial({
+                color: 0x06B6D4,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.25,
+                blending: THREE.AdditiveBlending
+            });
+            const innerCore = new THREE.Mesh(innerCoreGeom, innerCoreMat);
+            wireframeCamera.add(innerCore);
+
+            // 6. Handle Interaction and Tracking Bindings
+            document.addEventListener('mousemove', onDocumentMouseMove);
+            document.addEventListener('touchstart', onDocumentTouchStart, { passive: true });
+            document.addEventListener('touchmove', onDocumentTouchMove, { passive: true });
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onDocumentMouseMove(event) {
+            mouseX = event.clientX - windowHalfX;
+            mouseY = event.clientY - windowHalfY;
+        }
+
+        function onDocumentTouchStart(event) {
+            if (event.touches.length === 1) {
+                mouseX = event.touches[0].pageX - windowHalfX;
+                mouseY = event.touches[0].pageY - windowHalfY;
+            }
+        }
+
+        function onDocumentTouchMove(event) {
+            if (event.touches.length === 1) {
+                mouseX = event.touches[0].pageX - windowHalfX;
+                mouseY = event.touches[0].pageY - windowHalfY;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+
+        function render() {
+            // Smooth Camera interpolation (Inertia effect)
+            targetX = mouseX * 0.45;
+            targetY = mouseY * 0.45;
+
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (-targetY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            // Slowly spin background particle field
+            if (particleSystem) {
+                particleSystem.rotation.y += 0.0006;
+                particleSystem.rotation.x += 0.0002;
+            }
+
+            // Spin futuristic lens wireframe symbol
+            if (wireframeCamera) {
+                wireframeCamera.rotation.y -= 0.0015;
+                wireframeCamera.rotation.z += 0.0005;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Fire rendering execution loop on window load finish
+        window.onload = function() {
+            init3DScene();
+            animate();
+            
+            // Re-render and resize elements for full stability
+            setTimeout(onWindowResize, 100);
+        }
+    </script>
+
+    <script>
+        // Initialize Lucide SVG Icons instantly on interface load
+        lucide.createIcons();
+
+        // 1. Mobile Menu Open/Close Script
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // 2. Terminal Interactive Shell Interconnection Simulator
+        const projectCards = document.querySelectorAll('.project-card');
+        const terminalOutput = document.getElementById('terminal-custom-output');
+
+        projectCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const name = card.getAttribute('data-project-name');
+                const tech = card.getAttribute('data-project-tech');
+                const desc = card.getAttribute('data-project-desc');
+
+                // Animate custom logs simulating compiler printout
+                terminalOutput.innerHTML = `
+                    <span class="text-brand-neonBlue">lilia@core-v5:~$</span> <span class="text-white">launch --active "${name}"</span>
+                    <p class="text-green-400 mt-1">[OK] Environment initialized successfully.</p>
+                    <p class="text-gray-300"><strong class="text-brand-neonBlue font-semibold">Config:</strong> ${tech}</p>
+                    <p class="text-brand-textMuted leading-relaxed text-xs mt-1"><strong class="text-brand-neonPink font-semibold">Overview:</strong> ${desc}</p>
+                    <p class="text-brand-neonBlue animate-pulse mt-2">&gt;&gt; Ready to build.</p>
+                `;
+            });
+        });
+
+        // 3. Photography Grid Filtering Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const photoItems = document.querySelectorAll('.photo-item');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Reset active filters style
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-brand-neonPink', 'text-white');
+                    b.classList.add('text-brand-textMuted');
+                });
+
+                // Style active button
+                btn.classList.add('bg-brand-neonPink', 'text-white');
+                btn.classList.remove('text-brand-textMuted');
+
+                const selectedCategory = btn.getAttribute('data-category');
+
+                photoItems.forEach(item => {
+                    const itemCategory = item.getAttribute('data-category');
+                    if (selectedCategory === 'all' || itemCategory === selectedCategory) {
+                        item.classList.remove('hidden');
+                        // Micro entrance animation
+                        item.style.opacity = '0';
+                        setTimeout(() => {
+                            item.style.opacity = '1';
+                            item.style.transition = 'opacity 0.4s ease';
+                        }, 50);
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+            });
+        });
+
+        // 4. Photographical EXIF Lightbox Engine
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxTitle = document.getElementById('lightbox-title');
+        const lightboxDesc = document.getElementById('lightbox-desc');
+        const lightboxCategory = document.getElementById('lightbox-category');
+        const lightboxClose = document.getElementById('lightbox-close');
+        const lightboxCopyBtn = document.getElementById('lightbox-copy');
+
+        // EXIF Tags
+        const exifShutter = document.getElementById('exif-shutter');
+        const exifAperture = document.getElementById('exif-aperture');
+        const exifIso = document.getElementById('exif-iso');
+        const exifFocal = document.getElementById('exif-focal');
+
+        let activePhotoURL = '';
+
+        photoItems.forEach(photo => {
+            photo.addEventListener('click', () => {
+                const imgUrl = photo.getAttribute('data-img');
+                const title = photo.getAttribute('data-title');
+                const desc = photo.getAttribute('data-desc');
+                const category = photo.getAttribute('data-category');
+
+                // EXIF Attributes
+                const shutter = photo.getAttribute('data-shutter');
+                const aperture = photo.getAttribute('data-aperture');
+                const iso = photo.getAttribute('data-iso');
+                const focal = photo.getAttribute('data-focal');
+
+                // Populate Lightbox Fields
+                activePhotoURL = imgUrl;
+                lightboxImg.src = imgUrl + "?q=90&w=1200&auto=format&fit=crop";
+                lightboxTitle.textContent = title;
+                lightboxDesc.textContent = desc;
+                lightboxCategory.textContent = category;
+
+                exifShutter.textContent = shutter;
+                exifAperture.textContent = aperture;
+                exifIso.textContent = iso;
+                exifFocal.textContent = focal;
+
+                // Adjust color theme tag based on category
+                if(category === 'urban') {
+                    lightboxCategory.className = "text-[10px] font-mono uppercase tracking-[0.2em] text-brand-neonPink px-2.5 py-1 rounded bg-brand-neonPink/10 border border-brand-neonPink/20 inline-block mb-3";
+                } else if (category === 'nature') {
+                    lightboxCategory.className = "text-[10px] font-mono uppercase tracking-[0.2em] text-brand-accent px-2.5 py-1 rounded bg-brand-accent/10 border border-brand-accent/20 inline-block mb-3";
+                } else {
+                    lightboxCategory.className = "text-[10px] font-mono uppercase tracking-[0.2em] text-brand-neonBlue px-2.5 py-1 rounded bg-brand-neonBlue/10 border border-brand-neonBlue/20 inline-block mb-3";
+                }
+
+                // Show Lightbox with smooth flex display
+                lightbox.classList.remove('hidden');
+                lightbox.classList.add('flex');
+                document.body.classList.add('overflow-hidden'); // Lock body scroll
+            });
+        });
+
+        // Close lightbox function
+        function closeLightbox() {
+            lightbox.classList.add('hidden');
+            lightbox.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        
+        // Close on overlay backdrop click
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // Safe Clipboard Copy Mechanism for Photographer portfolio sharing
+        lightboxCopyBtn.addEventListener('click', () => {
+            if (activePhotoURL) {
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = activePhotoURL;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+
+                // Quick copy button state changes
+                const originalText = lightboxCopyBtn.innerHTML;
+                lightboxCopyBtn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-green-400"></i> Copied!`;
+                lucide.createIcons();
+                setTimeout(() => {
+                    lightboxCopyBtn.innerHTML = originalText;
+                    lucide.createIcons();
+                }, 2000);
+            }
+        });
+
+        // 5. Contact Form Submission Interface Simulator
+        const contactForm = document.getElementById('contact-form');
+        const formSuccess = document.getElementById('form-success');
+
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Simulating connection delay before showing glass card success window
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> <span>Establishing Port...</span>`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                formSuccess.classList.remove('hidden');
+                submitBtn.innerHTML = `<i data-lucide="send" class="w-5 h-5"></i> <span>Send Transmission</span>`;
+                lucide.createIcons();
+                // Reset form fields
+                contactForm.reset();
+            }, 1200);
+        });
+    </script>
+</body>
+</html>

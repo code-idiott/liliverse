@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 Lilia's Dreamverse Grid 🌸</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #ffeef8 0%, #eef2ff 100%);
+            --card-bg: #ffffff;
+            --primary-color: #ff85a2;
+            --secondary-color: #a3bded;
+            --text-color: #4a4a4a;
+            --btn-copy-bg: #f3e8ff;
+            --btn-copy-text: #6b21a8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 1150px;
+            padding: 45px 35px;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(255, 133, 162, 0.12);
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #8e8e8e;
+            margin-bottom: 45px;
+        }
+
+        /* 4-Column Horizontal Grid Layout */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        /* Base Card Styling */
+        .portfolio-item {
+            background: #fafafa;
+            border: 2px solid #f2f2f2;
+            padding: 24px;
+            border-radius: 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 290px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .portfolio-icon {
+            font-size: 2.8rem;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .portfolio-name {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #4a4a4a;
+            margin-bottom: 20px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 11px 0;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-copy {
+            background-color: var(--btn-copy-bg);
+            color: var(--btn-copy-text);
+        }
+
+        .btn-copy:hover {
+            background-color: #e9d5ff;
+        }
+
+        .btn-open {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-open:hover {
+            background-color: #ff6b8b;
+            box-shadow: 0 4px 10px rgba(255, 133, 162, 0.25);
+        }
+
+        /* ==========================================================================
+           UNIQUE HOVER ANIMATIONS & CUSTOM CURSORS FOR EACH CARD
+           ========================================================================== */
+
+        /* Card 1: Cozy Corner -> Tilt + Cozy Teddy Cursor */
+        .card-1:hover {
+            transform: translateY(-8px) rotate(-3deg);
+            border-color: #ffb3c6;
+            background: #fff5f7;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>🧸</text></svg>"), auto;
+        }
+        .card-1:hover .portfolio-icon { transform: scale(1.1); }
+
+        /* Card 2: Secret Sketchbook -> Floating Lift + Palette Cursor */
+        .card-2:hover {
+            transform: translateY(-12px);
+            border-color: #a3bded;
+            box-shadow: 0 12px 24px rgba(163, 189, 237, 0.3);
+            background: #f0f4ff;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>🎨</text></svg>"), auto;
+        }
+        .card-2:hover .portfolio-icon { transform: rotate(15deg); }
+
+        /* Card 3: Midnight Thoughts -> Pulse Glow + Café Coffee Cursor */
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 10px rgba(216, 180, 254, 0.4); transform: scale(1); }
+            to { box-shadow: 0 0 25px rgba(192, 132, 252, 0.8); transform: scale(1.04); }
+        }
+        .card-3:hover {
+            animation: pulseGlow 1.2s infinite alternate ease-in-out;
+            border-color: #c084fc;
+            background: #faf5ff;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>☕</text></svg>"), auto;
+        }
+
+        /* Card 4: Stardust Memories -> Smooth Scale & Gradient Light + Sparkle Cursor */
+        .card-4:hover {
+            transform: scale(1.06);
+            border-color: #fde047;
+            background: linear-gradient(135deg, #ffffff, #fef9c3);
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>✨</text></svg>"), auto;
+        }
+        .card-4:hover .portfolio-icon { animation: spin 4s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Card 5: Aesthetics & Algorithms -> Sharp Skew Slide + Ribbon Cursor */
+        .card-5:hover {
+            transform: translateY(-6px) skewX(-4deg);
+            border-color: #38bdf8;
+            background: #f0f9ff;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>🎀</text></svg>"), auto;
+        }
+
+        /* Card 6: Dreamy Moodboard -> Soft Floating Cloud Loop + Cloud Cursor */
+        @keyframes floatVertical {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        .card-6:hover {
+            animation: floatVertical 2s infinite ease-in-out;
+            border-color: #93c5fd;
+            background: #eff6ff;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>☁️</text></svg>"), auto;
+        }
+
+        /* Card 7: Pixel Playground -> Retro 8-bit Shake + Controller Cursor */
+        @keyframes pixelShake {
+            0% { transform: translate(2px, 1px) scale(1.03); }
+            25% { transform: translate(-1px, -2px) scale(1.03); }
+            50% { transform: translate(-3px, 0px) scale(1.03); }
+            75% { transform: translate(1px, 2px) scale(1.03); }
+            100% { transform: translate(2px, 1px) scale(1.03); }
+        }
+        .card-7:hover {
+            animation: pixelShake 0.3s infinite;
+            border: 2px dashed #f43f5e;
+            background: #fff1f2;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>👾</text></svg>"), auto;
+        }
+
+        /* Card 8: Adventure Logs -> Pop Out & Forward Shift + Rocket Cursor */
+        .card-8:hover {
+            transform: translateY(-6px) translateX(6px);
+            border-color: #34d399;
+            background: #ecfdf5;
+            box-shadow: -6px 6px 0px rgba(52, 211, 153, 0.2);
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' style='font-size:24px'><text y='28'>🚀</text></svg>"), auto;
+        }
+
+        /* Responsive Layout Updates */
+        @media (max-width: 992px) {
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 576px) {
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 30px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🌸 Lilia's Dreamverse</h1>
+            <p>Hey Lili I made this for you but you gone before i show you this ✨ Hover over cards to see the magic!</p>
+        </header>
+
+        <div class="portfolio-grid">
+            
+            <!-- 1. Cozy Corner -->
+            <div class="portfolio-item card-1">
+                <div class="portfolio-icon">🧸</div>
+                <div class="portfolio-name">The Cozy Corner</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('lweb1.html', this)">📋 Copy</button>
+                    <a href="lilia-universe.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+            <!-- 2. Secret Sketchbook -->
+            <div class="portfolio-item card-2">
+                <div class="portfolio-icon">🎨</div>
+                <div class="portfolio-name">My Secret Sketchbook</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('web1.html', this)">📋 Copy</button>
+                    <a href="web1.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+            <!-- 3. Midnight Thoughts -->
+            <div class="portfolio-item card-3">
+                <div class="portfolio-icon">☕</div>
+                <div class="portfolio-name">Midnight Thoughts & Café</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('web10.html', this)">📋 Copy</button>
+                    <a href="web10.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+            <!-- 4. Stardust Memories -->
+            <div class="portfolio-item card-4">
+                <div class="portfolio-icon">🌌</div>
+                <div class="portfolio-name">Stardust Memories</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('web4.html', this)">📋 Copy</button>
+                    <a href="web4.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+            <!-- 5. Aesthetics & Algorithms -->
+            <div class="portfolio-item card-5">
+                <div class="portfolio-icon">🎀</div>
+                <div class="portfolio-name">Aesthetics & Algorithms</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('web6.html', this)">📋 Copy</button>
+                    <a href="web6.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+            <!-- 6. Dreamy Moodboard -->
+            <div class="portfolio-item card-6">
+                <div class="portfolio-icon">☁️</div>
+                <div class="portfolio-name">The Dreamy Moodboard</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('web7.html', this)">📋 Copy</button>
+                    <a href="web7.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+            <!-- 7. Pixel Playground -->
+            <div class="portfolio-item card-7">
+                <div class="portfolio-icon">👾</div>
+                <div class="portfolio-name">Pixel Playground</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('web8.html', this)">📋 Copy</button>
+                    <a href="web8.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+            <!-- 8. Adventure Logs -->
+            <div class="portfolio-item card-8">
+                <div class="portfolio-icon">🎒</div>
+                <div class="portfolio-name">The Adventure Logs</div>
+                <div class="actions">
+                    <button class="btn btn-copy" onclick="copyLink('web9.html', this)">📋 Copy</button>
+                    <a href="web9.html" target="_blank" class="btn btn-open">🚀 Open</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function copyLink(url, button) {
+            navigator.clipboard.writeText(url).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = "✨ Copied!";
+                button.style.backgroundColor = "#bbf7d0";
+                button.style.color = "#15803d";
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.backgroundColor = "";
+                    button.style.color = "";
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy fail ho gaya: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

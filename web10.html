@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LILIA // Algorithmic Lens</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Syne, Inter, & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@500;700;800&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Syne', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        aperture: {
+                            dark: '#030206',
+                            card: '#0B0912',
+                            gold: '#D4AF37',
+                            cyan: '#00F0FF',
+                            magenta: '#FF007F',
+                            silver: '#E5E7EB'
+                        }
+                    },
+                    animation: {
+                        'shutter-pulse': 'shutterGlow 3s infinite alternate',
+                        'lens-float': 'float3D 6s ease-in-out infinite',
+                        'data-stream': 'scanLine 8s linear infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Interactive Shutter Glow Animation */
+        @keyframes shutterGlow {
+            0% { text-shadow: 0 0 10px rgba(0, 240, 255, 0.4), 0 0 20px rgba(255, 0, 127, 0.2); }
+            100% { text-shadow: 0 0 25px rgba(0, 240, 255, 0.8), 0 0 40px rgba(255, 0, 127, 0.6); }
+        }
+        @keyframes float3D {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+        @keyframes scanLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Glassmorphic Paneling styling */
+        .glass-element {
+            background: rgba(11, 9, 18, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        
+        .interactive-border:hover {
+            border-color: #FF007F;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.35);
+        }
+
+        /* Photographic Lens Grid Loupe System styles */
+        .lens-loupe {
+            pointer-events: none;
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 2px solid #00F0FF;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 15px rgba(0, 240, 255, 0.5);
+            display: none;
+            overflow: hidden;
+            z-index: 40;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        /* Scrollbar aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030206;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252233;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF007F;
+        }
+    </style>
+</head>
+<body class="bg-aperture-dark text-gray-200 font-sans overflow-x-hidden selection:bg-aperture-magenta selection:text-white">
+
+    <div id="boot-overlay" class="fixed inset-0 bg-aperture-dark z-[100] flex flex-col items-center justify-center p-6 transition-all duration-1000">
+        <!-- Background light beams -->
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,0,127,0.12),transparent_65%)] pointer-events-none"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,240,255,0.08),transparent_80%)] pointer-events-none"></div>
+
+        <div class="max-w-md w-full text-center relative z-10 flex flex-col items-center">
+            <!-- Animated Mechanical Shutter SVG -->
+            <div id="shutter-trigger-btn" class="w-32 h-32 rounded-full border border-white/20 hover:border-aperture-magenta flex items-center justify-center cursor-pointer group shadow-lg transition-all duration-500 hover:scale-105 bg-black/40 relative mb-8">
+                <div class="absolute inset-1.5 rounded-full border border-dashed border-white/10 group-hover:border-aperture-cyan group-hover:rotate-45 transition-transform duration-1000"></div>
+                <!-- Shutter Blades Vector -->
+                <svg id="shutter-svg" class="w-16 h-16 text-white/80 group-hover:text-aperture-magenta transition-colors" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3">
+                    <circle cx="50" cy="50" r="45" stroke-dasharray="2 2" class="opacity-50" />
+                    <!-- Shutter blades lines -->
+                    <line x1="50" y1="5" x2="95" y2="50" />
+                    <line x1="95" y1="50" x2="50" y2="95" />
+                    <line x1="50" y1="95" x2="5" y2="50" />
+                    <line x1="5" y1="50" x2="50" y2="5" />
+                    <line x1="18.2" y1="18.2" x2="81.8" y2="81.8" />
+                    <line x1="81.8" y1="18.2" x2="18.2" y2="81.8" />
+                </svg>
+                <div class="absolute bottom-[-10px] bg-aperture-magenta text-white px-2.5 py-0.5 rounded text-[9px] font-mono tracking-widest uppercase">PRESS SHUTTER</div>
+            </div>
+
+            <!-- Highly Prominent LILIA Highlight on Boot Screen -->
+            <div class="mb-4">
+                <h2 class="text-xs font-mono uppercase tracking-[0.5em] text-aperture-cyan">PORTFOLIO TRANSCRIPTION</h2>
+                <h1 class="text-6xl font-display font-extrabold tracking-widest bg-gradient-to-r from-white via-aperture-magenta to-aperture-cyan bg-clip-text text-transparent filter drop-shadow-[0_4px_12px_rgba(255,0,127,0.5)]">LILIA</h1>
+                <span class="block text-[11px] font-mono tracking-[0.2em] text-gray-400 mt-2">ALGORITHMIC PHOTOGRAPHY SYSTEMS</span>
+            </div>
+
+            <!-- Pre-loader Diagnostic Checklist (CS Twist) -->
+            <div class="w-full bg-black/40 border border-white/5 p-4 rounded-xl font-mono text-left text-xs text-gray-500 space-y-1.5">
+                <div class="flex justify-between"><span>[SYSTEM] Core initialization:</span><span class="text-green-400">SUCCESS</span></div>
+                <div class="flex justify-between"><span>[OPTICS] Focal range mapping:</span><span class="text-green-400">ACTIVE</span></div>
+                <div class="flex justify-between"><span>[CAMERA] Light capturing grid:</span><span class="text-aperture-cyan">10 PHOTO SLOTS LOADED</span></div>
+                <div class="flex justify-between"><span>[SOUND] Audio synthesizers:</span><span class="text-yellow-400">READY</span></div>
+            </div>
+            
+            <p class="text-gray-400 text-xs mt-6 font-mono animate-pulse">Click Shutter to initiate immersive sequence...</p>
+        </div>
+    </div>
+
+    <div class="fixed inset-0 z-0 pointer-events-none" id="canvas-container-main"></div>
+
+    <header class="fixed top-0 left-0 w-full z-40 glass-element border-b border-white/5 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            
+            <!-- Highly Highlighted Brand Logo -->
+            <a href="#hero" class="flex items-center space-x-3 group relative" onclick="playBeep()">
+                <div class="w-11 h-11 rounded-lg bg-gradient-to-br from-aperture-magenta via-aperture-dark to-aperture-cyan flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-aperture-magenta/20 border border-white/15 group-hover:scale-105 transition-transform">
+                    L
+                </div>
+                <div>
+                    <!-- Highlighted Lilia Name with Neon effects -->
+                    <span class="font-display font-extrabold tracking-wider text-2xl text-white group-hover:text-aperture-cyan transition-colors">LILIA</span>
+                    <span class="block text-[9px] text-aperture-magenta tracking-[0.25em] font-mono uppercase leading-none">The Computational Eye</span>
+                </div>
+            </a>
+
+            <!-- Photography & CS Hub Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="text-xs font-mono tracking-wider text-gray-300 hover:text-aperture-cyan transition-colors flex items-center gap-1" onclick="playClick()"><span class="text-aperture-cyan">01//</span> EYE</a>
+                <a href="#gallery" class="text-xs font-mono tracking-wider text-gray-300 hover:text-aperture-magenta transition-colors flex items-center gap-1" onclick="playClick()"><span class="text-aperture-magenta">02//</span> GALLERY</a>
+                <a href="#darkroom" class="text-xs font-mono tracking-wider text-gray-300 hover:text-aperture-gold transition-colors flex items-center gap-1" onclick="playClick()"><span class="text-aperture-gold">03//</span> CS DARKROOM</a>
+                <a href="#contact" class="px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-mono tracking-widest uppercase border border-white/10 hover:border-aperture-cyan/50 transition-all duration-300 shadow-sm" onclick="playShutter()"><span class="text-aperture-cyan animate-pulse">■</span> INITIATE LINK</a>
+            </nav>
+
+            <!-- Diagnostic system status trigger (Interactive Surprise Button) -->
+            <button id="system-diagnostic-trigger" class="px-3 py-1.5 rounded-md border border-aperture-magenta/40 hover:border-aperture-magenta text-[10px] font-mono text-aperture-magenta flex items-center gap-1.5 transition-all bg-black/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+                <span>SYSTEM DIAG</span>
+            </button>
+        </div>
+    </header>
+
+    <section id="hero" class="relative min-h-screen flex items-center justify-center px-6 pt-24 overflow-hidden z-10 pointer-events-none select-none">
+        
+        <!-- Ambient digital data scan lines overlay -->
+        <div class="absolute inset-0 z-10 pointer-events-none opacity-[0.03] overflow-hidden">
+            <div class="w-full h-1 bg-white animate-data-stream"></div>
+        </div>
+
+        <div class="max-w-5xl mx-auto text-center pointer-events-auto relative z-20">
+            <!-- Interlaced tech-status stamp -->
+            <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-black/60 border border-white/10 text-[10px] font-mono text-aperture-cyan tracking-wider uppercase mb-6 shadow-inner">
+                <i data-lucide="scan" class="w-3.5 h-3.5 text-aperture-magenta animate-spin-slow"></i>
+                <span>AUTOFOCUS: MULTI-REGION OPTICAL MATRIX</span>
+            </div>
+
+            <!-- Highly Prominent Focal LILIA Title -->
+            <h1 class="text-6xl md:text-8xl lg:text-9xl font-display font-black tracking-tight mb-6 leading-none relative">
+                <span class="absolute -top-10 left-1/2 -translate-x-1/2 text-xs font-mono uppercase tracking-[0.4em] text-gray-500">Curating light via algorithms</span>
+                <span class="block bg-gradient-to-r from-white via-aperture-silver to-white bg-clip-text text-transparent">THE ART OF</span>
+                <!-- Superhighlighted Name Lilia -->
+                <span class="block text-aperture-cyan animate-shutter-pulse filter drop-shadow-[0_0_20px_rgba(0,240,255,0.4)]">LILIA</span>
+            </h1>
+
+            <p class="max-w-2xl mx-auto text-gray-400 text-sm md:text-base mb-10 leading-relaxed font-mono">
+                // A Californian developer translating atmospheric physics and raw photography into computer-vision matrices. Crafting deterministic codes that render beautiful organic chaos.
+            </p>
+
+            <!-- Surprising Call to Actions -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#gallery" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-aperture-magenta to-aperture-cyan text-white font-mono text-xs tracking-widest uppercase shadow-lg shadow-aperture-magenta/20 flex items-center justify-center space-x-2 transform hover:-translate-y-0.5 transition-all duration-300" onclick="playShutter()">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                    <span>Examine Galleries</span>
+                </a>
+                <a href="#darkroom" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-aperture-gold/50 text-white font-mono text-xs tracking-widest uppercase flex items-center justify-center space-x-2 transform hover:-translate-y-0.5 transition-all duration-300" onclick="playClick()">
+                    <i data-lucide="cpu" class="w-4 h-4 text-aperture-gold"></i>
+                    <span>Execute CS Filters</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Simulated camera viewfinder corners inside Hero -->
+        <div class="absolute top-28 left-6 md:left-12 w-8 h-8 border-t-2 border-l-2 border-white/20 pointer-events-none"></div>
+        <div class="absolute top-28 right-6 md:right-12 w-8 h-8 border-t-2 border-r-2 border-white/20 pointer-events-none"></div>
+        <div class="absolute bottom-12 left-6 md:left-12 w-8 h-8 border-b-2 border-l-2 border-white/20 pointer-events-none"></div>
+        <div class="absolute bottom-12 right-6 md:right-12 w-8 h-8 border-b-2 border-r-2 border-white/20 pointer-events-none"></div>
+    </section>
+
+    <section id="about" class="relative z-10 py-24 md:py-32 bg-gradient-to-b from-aperture-dark via-aperture-card to-aperture-dark px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- Left Narrative Core -->
+                <div class="lg:col-span-7 space-y-6">
+                    <span class="text-xs uppercase tracking-[0.4em] font-mono text-aperture-magenta font-semibold block">01 // PHOTOGRAPHIC SOUL</span>
+                    <h2 class="text-3xl md:text-5xl font-display font-extrabold text-white">Focusing Computational Arrays on Organic Realism.</h2>
+                    <div class="h-1 w-20 bg-gradient-to-r from-aperture-magenta to-aperture-cyan rounded-full"></div>
+
+                    <p class="text-gray-300 leading-relaxed font-mono text-xs md:text-sm">
+                        As a Computer Science Engineer, Lilia models light as highly coordinated particle streams colliding with digital sensors. To her, a lens isn't just glass; it is a matrix coordinate system mapping real-world photons onto micro-silicon arrays.
+                    </p>
+                    <p class="text-gray-400 leading-relaxed text-xs md:text-sm">
+                        This website contains her 10 highly celebrated photographs taken across metropolitan coastlines, dark back-alleys, and macro botanical systems. Each image represents a custom exposure setting analyzed and logged by her computer-vision pipeline. Hover over the items in her gallery below to trigger her customized interactive loupe analyzer!
+                    </p>
+
+                    <!-- Technical Matrix Specs -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
+                        <div class="p-4 rounded-xl bg-black/40 border border-white/5">
+                            <span class="text-[10px] font-mono text-aperture-cyan uppercase block mb-1">OPTICAL SENSOR</span>
+                            <span class="text-sm font-semibold text-white font-mono">61MP Back-Illuminated</span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-black/40 border border-white/5">
+                            <span class="text-[10px] font-mono text-aperture-magenta uppercase block mb-1">DEVELOPER LANGUAGE</span>
+                            <span class="text-sm font-semibold text-white font-mono">C++23 / WebGL / Python</span>
+                        </div>
+                        <div class="p-4 rounded-xl bg-black/40 border border-white/5">
+                            <span class="text-[10px] font-mono text-aperture-gold uppercase block mb-1">COLOR CALIBRATION</span>
+                            <span class="text-sm font-semibold text-white font-mono">DCI-P3 Rec.2020</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Diagnostic Camera Blueprint (Interactive surprise item) -->
+                <div class="lg:col-span-5 relative">
+                    <div class="absolute -inset-1 rounded-2xl bg-gradient-to-r from-aperture-magenta to-aperture-cyan opacity-20 blur-xl"></div>
+                    <div class="relative glass-element rounded-2xl p-6 border border-white/10 shadow-2xl text-center flex flex-col justify-between h-96 overflow-hidden group">
+                        
+                        <!-- Circular Lens Blueprint Vector graphic -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-80 h-80 text-aperture-cyan animate-spin-slow" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5">
+                                <circle cx="50" cy="50" r="40" />
+                                <circle cx="50" cy="50" r="30" stroke-dasharray="2 2" />
+                                <circle cx="50" cy="50" r="20" />
+                                <circle cx="50" cy="50" r="10" />
+                                <line x1="50" y1="0" x2="50" y2="100" />
+                                <line x1="0" y1="50" x2="100" y2="50" />
+                            </svg>
+                        </div>
+
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="flex justify-between items-center text-xs font-mono border-b border-white/5 pb-3">
+                                <span class="text-aperture-magenta">LIVE SENSOR BLUEPRINT</span>
+                                <span class="text-[10px] text-green-400">CONNECTIVITY: AUTO</span>
+                            </div>
+
+                            <div class="space-y-4 my-auto">
+                                <i data-lucide="focus" class="w-16 h-16 text-aperture-cyan mx-auto animate-pulse"></i>
+                                <div class="text-xs font-mono text-gray-300">
+                                    <p class="text-white font-bold mb-1">REAL-TIME LENS RAY PATH</p>
+                                    <p class="text-[10px] text-gray-500">Angle of reflection mapped dynamically using mathematical matrix transformations.</p>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Lens Calibration Sliders (CS Surprise) -->
+                            <div class="space-y-2 border-t border-white/5 pt-3">
+                                <div class="flex justify-between text-[10px] font-mono text-gray-400">
+                                    <span>LENS APERTURE SIMULATOR</span>
+                                    <span id="aperture-val" class="text-aperture-cyan font-bold">f/2.8</span>
+                                </div>
+                                <input id="aperture-slider" type="range" min="1.2" max="16" step="0.1" value="2.8" class="w-full accent-aperture-cyan bg-white/5 h-1 rounded-full cursor-pointer">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="gallery" class="relative z-10 py-24 md:py-32 bg-aperture-dark px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto relative">
+            
+            <!-- Real-time analyzer Loupe Element -->
+            <div id="lens-loupe" class="lens-loupe hidden">
+                <canvas id="loupe-canvas" width="140" height="140"></canvas>
+                <div class="absolute inset-x-0 bottom-1 bg-black/80 text-center py-0.5 text-[8px] font-mono text-aperture-cyan uppercase tracking-widest border-t border-white/10 z-50">LILIA ANALYSIS</div>
+            </div>
+
+            <!-- Section Head -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-6">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.4em] font-mono text-aperture-cyan font-semibold block mb-2">02 // LENS CORRIDOR</span>
+                    <h2 class="text-3xl md:text-5xl font-display font-extrabold text-white">Spatially Logged Exposures</h2>
+                    <div class="h-1 w-20 bg-gradient-to-r from-aperture-cyan to-aperture-magenta mt-4 rounded-full"></div>
+                    <p class="text-gray-400 text-xs md:text-sm mt-4 font-mono">
+                        A collection of 10 meticulously framed exposures. Hover or tap to launch the <strong class="text-aperture-cyan font-bold">Computer Vision Lens Loupe</strong> to inspect RAW pixels!
+                    </p>
+                </div>
+
+                <!-- Interactive Filters -->
+                <div class="flex flex-wrap gap-2 glass-element p-1.5 rounded-xl border border-white/5 font-mono text-[10px]">
+                    <button class="filter-btn px-4 py-2 rounded-lg bg-aperture-magenta text-white font-medium transition-all" data-category="all" onclick="playClick()">ALL FILES</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white transition-all" data-category="urban" onclick="playClick()">METROPOLIS</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white transition-all" data-category="natural" onclick="playClick()">NATURAL WILD</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white transition-all" data-category="optics" onclick="playClick()">MACRO GLASS</button>
+                </div>
+            </div>
+
+            <!-- Photographic Grid - 10 photographs with unique names, EXIF details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="photo-grid-main">
+                
+                <!-- Photo 1: Metropolis category -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="urban"
+                     data-img="https://images.unsplash.com/photo-1519501025264-65ba15a82390" 
+                     data-title="Chasing Cyan Tokyo" 
+                     data-desc="Deep street corridors in Tokyo radiating intense high-contrast neon-pink and cyan reflections. Shot during heavy mist."
+                     data-shutter="1/160s" data-aperture="f/1.8" data-iso="800" data-focal="35mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?q=80&w=600&auto=format&fit=crop" 
+                             alt="Chasing Cyan Tokyo" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Chasing Cyan Tokyo</h3>
+                            <span class="text-[9px] text-aperture-magenta bg-aperture-magenta/10 px-2 py-0.5 rounded border border-aperture-magenta/20">METROPOLIS</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 800</span>
+                            <span>35mm f/1.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 2: Metropolis category -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="urban"
+                     data-img="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df" 
+                     data-title="Neon Grid Overpass" 
+                     data-desc="Elevated transit lines showcasing structured steel vectors and golden skyline luminescence."
+                     data-shutter="1/250s" data-aperture="f/4.0" data-iso="400" data-focal="24mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=600&auto=format&fit=crop" 
+                             alt="Neon Grid Overpass" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Neon Grid Overpass</h3>
+                            <span class="text-[9px] text-aperture-magenta bg-aperture-magenta/10 px-2 py-0.5 rounded border border-aperture-magenta/20">METROPOLIS</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 400</span>
+                            <span>24mm f/4.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 3: Natural Wild -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="natural"
+                     data-img="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b" 
+                     data-title="Yosemite Peaks Matrix" 
+                     data-desc="Layered peaks of magnificent monolithic ranges emerging from a dense low valley sea of clouds during cold early light."
+                     data-shutter="1/400s" data-aperture="f/8.0" data-iso="100" data-focal="70mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=600&auto=format&fit=crop" 
+                             alt="Yosemite Peaks Matrix" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Yosemite Peaks Matrix</h3>
+                            <span class="text-[9px] text-aperture-cyan bg-aperture-cyan/10 px-2 py-0.5 rounded border border-aperture-cyan/20 font-bold">NATURAL WILD</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 100</span>
+                            <span>70mm f/8.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 4: Macro Glass -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="optics"
+                     data-img="https://images.unsplash.com/photo-1534067783941-51c9c23eccfd" 
+                     data-title="Water Dew Refraction" 
+                     data-desc="Super macro capture of dew drops aligning on local grass, refracting the spectrum of morning ambient light as miniature natural lenses."
+                     data-shutter="1/1000s" data-aperture="f/2.8" data-iso="250" data-focal="90mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1534067783941-51c9c23eccfd?q=80&w=600&auto=format&fit=crop" 
+                             alt="Water Dew Refraction" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Water Dew Refraction</h3>
+                            <span class="text-[9px] text-aperture-gold bg-aperture-gold/10 px-2 py-0.5 rounded border border-aperture-gold/20 font-bold">MACRO GLASS</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 250</span>
+                            <span>90mm f/2.8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 5: Natural Wild -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="natural"
+                     data-img="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0" 
+                     data-title="Milky Way Exposure Log" 
+                     data-desc="Deep field long exposure astronomical sequence capturing galactic stardust. Cleaned dynamically with median stacking algorithms."
+                     data-shutter="30s" data-aperture="f/1.4" data-iso="1600" data-focal="20mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?q=80&w=600&auto=format&fit=crop" 
+                             alt="Milky Way Exposure Log" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Milky Way Exposure Log</h3>
+                            <span class="text-[9px] text-aperture-cyan bg-aperture-cyan/10 px-2 py-0.5 rounded border border-aperture-cyan/20 font-bold">NATURAL WILD</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 1600</span>
+                            <span>20mm f/1.4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 6: Metropolis category -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="urban"
+                     data-img="https://images.unsplash.com/photo-1515621061946-eff1c2a352bd" 
+                     data-title="Geometric Monolith" 
+                     data-desc="Modern office structural shapes cutting into direct California skies. Focused on sharp contrast, lines, and parallel architectural shadows."
+                     data-shutter="1/500s" data-aperture="f/5.6" data-iso="100" data-focal="24mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1515621061946-eff1c2a352bd?q=80&w=600&auto=format&fit=crop" 
+                             alt="Geometric Monolith" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Geometric Monolith</h3>
+                            <span class="text-[9px] text-aperture-magenta bg-aperture-magenta/10 px-2 py-0.5 rounded border border-aperture-magenta/20">METROPOLIS</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 100</span>
+                            <span>24mm f/5.6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 7: Natural Wild -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="natural"
+                     data-img="https://images.unsplash.com/photo-1448375240586-882707db888b" 
+                     data-title="Redwood Morning Rays" 
+                     data-desc="Thick Redwood forest with golden morning light vectors breaking through high branches."
+                     data-shutter="1/80s" data-aperture="f/4.0" data-iso="320" data-focal="50mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=600&auto=format&fit=crop" 
+                             alt="Redwood Morning Rays" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Redwood Morning Rays</h3>
+                            <span class="text-[9px] text-aperture-cyan bg-aperture-cyan/10 px-2 py-0.5 rounded border border-aperture-cyan/20 font-bold">NATURAL WILD</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 320</span>
+                            <span>50mm f/4.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 8: Macro Glass -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="optics"
+                     data-img="https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7" 
+                     data-title="Chromatic Crystal Aberration" 
+                     data-desc="Custom light prism splitting intense backlight streams into raw magenta and cyan color bands."
+                     data-shutter="1/160s" data-aperture="f/2.0" data-iso="400" data-focal="50mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?q=80&w=600&auto=format&fit=crop" 
+                             alt="Chromatic Crystal Aberration" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Chromatic Crystal</h3>
+                            <span class="text-[9px] text-aperture-gold bg-aperture-gold/10 px-2 py-0.5 rounded border border-aperture-gold/20 font-bold">MACRO GLASS</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 400</span>
+                            <span>50mm f/2.0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 9: Macro Glass -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="optics"
+                     data-img="https://images.unsplash.com/photo-1550751827-4bd374c3f58b" 
+                     data-title="Solder Node Traces" 
+                     data-desc="Super macro capture of printed microelectronics board paths, highlighting copper connections and solder pads."
+                     data-shutter="1/60s" data-aperture="f/4.5" data-iso="640" data-focal="100mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop" 
+                             alt="Solder Node Traces" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Solder Node Traces</h3>
+                            <span class="text-[9px] text-aperture-gold bg-aperture-gold/10 px-2 py-0.5 rounded border border-aperture-gold/20 font-bold">MACRO GLASS</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 640</span>
+                            <span>100mm f/4.5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 10: Metropolis category -->
+                <div class="photo-card glass-element rounded-2xl overflow-hidden group border border-white/5 hover:border-aperture-magenta/40 transition-all duration-500 cursor-pointer relative" 
+                     data-category="urban"
+                     data-img="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" 
+                     data-title="Symmetric Skylight Matrix" 
+                     data-desc="Extremely wide geometry architectural shot framing a perfect triangles network of overhead structural glass."
+                     data-shutter="1/200s" data-aperture="f/5.6" data-iso="200" data-focal="16mm">
+                    <div class="relative overflow-hidden aspect-[4/3] image-container-target">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=600&auto=format&fit=crop" 
+                             alt="Symmetric Skylight Matrix" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                             loading="lazy"
+                             crossorigin="anonymous">
+                    </div>
+                    <div class="p-5 border-t border-white/5 font-mono">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-white text-sm tracking-wide">Symmetric Skylight</h3>
+                            <span class="text-[9px] text-aperture-magenta bg-aperture-magenta/10 px-2 py-0.5 rounded border border-aperture-magenta/20">METROPOLIS</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-gray-400">
+                            <span>ISO 200</span>
+                            <span>16mm f/5.6</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="darkroom" class="relative z-10 py-24 md:py-32 bg-gradient-to-b from-aperture-dark via-black to-aperture-dark px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="text-center max-w-xl mx-auto mb-16">
+                <span class="text-xs uppercase tracking-[0.4em] font-mono text-aperture-gold font-semibold block mb-2">03 // COMPUTATIONAL OPTICS</span>
+                <h2 class="text-3xl md:text-5xl font-display font-extrabold text-white">The Digital Darkroom</h2>
+                <div class="h-1 w-20 bg-gradient-to-r from-aperture-gold to-aperture-magenta mt-4 mx-auto rounded-full"></div>
+                <p class="text-gray-400 text-xs mt-4 font-mono">
+                    Select any photo from Lilia's set and execute raw Computer Science filter algorithms inside this browser matrix sandbox. Live rendering dynamically on Canvas!
+                </p>
+            </div>
+
+            <!-- Darkroom Simulator Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                
+                <!-- Left panel: Control Workspace -->
+                <div class="lg:col-span-4 flex flex-col justify-between glass-element rounded-2xl p-6 border border-white/10">
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-2 text-aperture-gold border-b border-white/5 pb-3">
+                            <i data-lucide="sliders" class="w-4 h-4"></i>
+                            <span class="font-mono text-xs tracking-wider uppercase">FILTER ALGORITHMS</span>
+                        </div>
+
+                        <!-- Choose Photo Input -->
+                        <div class="space-y-2">
+                            <label class="block font-mono text-[10px] text-gray-400 uppercase">Input Texture Selector</label>
+                            <select id="darkroom-image-selector" class="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-xs font-mono text-white focus:border-aperture-cyan focus:outline-none">
+                                <option value="https://images.unsplash.com/photo-1519501025264-65ba15a82390">1. Chasing Cyan Tokyo</option>
+                                <option value="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df">2. Neon Grid Overpass</option>
+                                <option value="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b">3. Yosemite Peaks Matrix</option>
+                                <option value="https://images.unsplash.com/photo-1534067783941-51c9c23eccfd">4. Water Dew Refraction</option>
+                                <option value="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0">5. Milky Way Exposure Log</option>
+                            </select>
+                        </div>
+
+                        <!-- Darkroom Core Operations Grid (Interactive Buttons) -->
+                        <div class="space-y-3">
+                            <span class="block font-mono text-[10px] text-gray-400 uppercase">Execute Filter Functions</span>
+                            
+                            <button onclick="applyDarkroomFilter('raw')" class="w-full py-2.5 rounded-lg border border-white/10 hover:border-aperture-cyan text-left px-4 font-mono text-xs text-white hover:bg-white/5 flex items-center justify-between transition-all group darkroom-btn" id="btn-raw">
+                                <span>raw_matrix_bypass()</span>
+                                <span class="text-[9px] text-aperture-cyan uppercase">RAW Image</span>
+                            </button>
+
+                            <button onclick="applyDarkroomFilter('grayscale')" class="w-full py-2.5 rounded-lg border border-white/10 hover:border-aperture-magenta text-left px-4 font-mono text-xs text-white hover:bg-white/5 flex items-center justify-between transition-all group darkroom-btn" id="btn-grayscale">
+                                <span>compute_luminosity()</span>
+                                <span class="text-[9px] text-aperture-magenta uppercase">Grayscale</span>
+                            </button>
+
+                            <button onclick="applyDarkroomFilter('sobel')" class="w-full py-2.5 rounded-lg border border-white/10 hover:border-aperture-gold text-left px-4 font-mono text-xs text-white hover:bg-white/5 flex items-center justify-between transition-all group darkroom-btn" id="btn-sobel">
+                                <span>sobel_edge_detection()</span>
+                                <span class="text-[9px] text-aperture-gold uppercase">Sobel Kernels</span>
+                            </button>
+
+                            <button onclick="applyDarkroomFilter('chromatic')" class="w-full py-2.5 rounded-lg border border-white/10 hover:border-aperture-cyan text-left px-4 font-mono text-xs text-white hover:bg-white/5 flex items-center justify-between transition-all group darkroom-btn" id="btn-chromatic">
+                                <span>chromatic_rgb_shift()</span>
+                                <span class="text-[9px] text-aperture-cyan uppercase">RGB Split</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Digital compiler status terminal output -->
+                    <div class="mt-6 bg-black/60 border border-white/5 p-4 rounded-xl font-mono text-[10px] text-gray-400 space-y-1">
+                        <div class="text-aperture-gold">&gt;&gt; COMPILER CORE ONLINE</div>
+                        <div id="darkroom-log-line">Status: Ready to compute pixel frames...</div>
+                        <div class="text-gray-600">Thread allocation: 0.12ms execution threshold</div>
+                    </div>
+                </div>
+
+                <!-- Right panel: Render Canvas and Live Histogram -->
+                <div class="lg:col-span-8 glass-element rounded-2xl p-6 border border-white/10 flex flex-col justify-between">
+                    <!-- Live Dynamic Image Canvas Container -->
+                    <div class="relative w-full aspect-[16/10] bg-black/50 rounded-xl overflow-hidden flex items-center justify-center border border-white/5 shadow-inner">
+                        <canvas id="darkroom-canvas" class="max-w-full max-h-full object-contain"></canvas>
+                        <!-- Grid overlay line markers to feel cinematic -->
+                        <div class="absolute inset-0 border border-dashed border-white/5 pointer-events-none grid grid-cols-3 grid-rows-3">
+                            <div></div><div></div><div></div>
+                            <div></div><div></div><div></div>
+                            <div></div><div></div><div></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Histogram Rendering Panel (CS / Technical surprise!) -->
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between font-mono text-[10px] text-gray-400 mb-2">
+                            <span class="flex items-center gap-1"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-aperture-cyan"></i> LIVE HISTOGRAM DATA RED/GREEN/BLUE</span>
+                            <span>BIN RESOLUTION: 256 LEVELS</span>
+                        </div>
+                        <div class="h-16 w-full bg-black/60 border border-white/5 rounded-lg overflow-hidden relative flex items-end">
+                            <!-- Overlay canvas for the computed histogram graph -->
+                            <canvas id="histogram-canvas" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden items-center justify-center p-4 transition-all">
+        <!-- Close overlay trigger -->
+        <button id="lightbox-close" class="absolute top-6 right-6 text-white hover:text-aperture-magenta focus:outline-none z-50 transition-colors" onclick="playClick()">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+
+        <!-- Simulated live monitor panel -->
+        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-aperture-card rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+            
+            <!-- Picture display screen frame -->
+            <div class="lg:col-span-8 flex items-center justify-center p-4 bg-black/40 min-h-[300px] max-h-[70vh] relative">
+                <img id="lightbox-img" src="" alt="Active monitor view" class="max-w-full max-h-[60vh] object-contain rounded-lg">
+                <!-- Virtual target frames overlay -->
+                <div class="absolute inset-10 pointer-events-none border border-white/10 flex items-center justify-center">
+                    <div class="w-4 h-4 border-t-2 border-l-2 border-white/45 absolute top-0 left-0"></div>
+                    <div class="w-4 h-4 border-t-2 border-r-2 border-white/45 absolute top-0 right-0"></div>
+                    <div class="w-4 h-4 border-b-2 border-l-2 border-white/45 absolute bottom-0 left-0"></div>
+                    <div class="w-4 h-4 border-b-2 border-r-2 border-white/45 absolute bottom-0 right-0"></div>
+                </div>
+            </div>
+
+            <!-- Optical metrics side log -->
+            <div class="lg:col-span-4 p-6 lg:p-8 space-y-6 font-mono">
+                <div>
+                    <span id="lightbox-category" class="text-[9px] font-bold uppercase tracking-[0.2em] text-aperture-cyan px-2.5 py-1 rounded bg-aperture-cyan/10 border border-aperture-cyan/20 inline-block mb-3">URBAN</span>
+                    <h3 id="lightbox-title" class="text-xl font-bold text-white tracking-wide">Chasing Cyan Tokyo</h3>
+                    <p id="lightbox-desc" class="text-gray-400 text-xs mt-2 leading-relaxed font-sans">
+                        Mist-shrouded deep alley corridors in Tokyo captured during peak twilight operations.
+                    </p>
+                </div>
+
+                <!-- Digital EXIF Matrix HUD -->
+                <div class="glass-element rounded-xl p-4 border border-white/10 bg-black/50 space-y-4">
+                    <div class="flex items-center space-x-2 border-b border-white/5 pb-2 text-aperture-magenta">
+                        <i data-lucide="cpu" class="w-4 h-4"></i>
+                        <span class="text-[10px] tracking-wider uppercase font-bold">EXIF IMAGE LOG DATA</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-xs">
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-gray-400 block text-[9px] uppercase">SHUTTER</span>
+                            <span id="exif-shutter" class="text-white font-bold">1/160s</span>
+                        </div>
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-gray-400 block text-[9px] uppercase">APERTURE</span>
+                            <span id="exif-aperture" class="text-white font-bold">f/1.8</span>
+                        </div>
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-gray-400 block text-[9px] uppercase">SENSITIVITY</span>
+                            <span id="exif-iso" class="text-white font-bold">ISO 800</span>
+                        </div>
+                        <div class="bg-white/5 p-2 rounded border border-white/5">
+                            <span class="text-gray-400 block text-[9px] uppercase">FOCAL DEPTH</span>
+                            <span id="exif-focal" class="text-white font-bold">35mm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Copy active image url to clipboard -->
+                <div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs">
+                    <span class="text-gray-400 flex items-center gap-1.5 font-sans">
+                        <i data-lucide="copyright" class="w-3.5 h-3.5"></i> Lilia Glass Core
+                    </span>
+                    <button id="lightbox-copy" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-[10px] border border-white/10 hover:border-aperture-magenta/50 transition-all flex items-center gap-2">
+                        <i data-lucide="copy" class="w-3 h-3"></i> COPY FILE LINK
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="diagnostic-panel" class="fixed inset-y-0 right-0 w-full sm:w-96 z-50 bg-black/95 border-l border-white/10 p-6 font-mono text-xs hidden flex-col justify-between shadow-2xl transition-all duration-300 transform translate-x-full">
+        <div>
+            <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+                <span class="text-aperture-magenta font-bold flex items-center gap-2"><i data-lucide="activity" class="w-4 h-4 animate-pulse"></i> DIGITAL HARDWARE STATUS</span>
+                <button id="close-diagnostic" class="text-gray-400 hover:text-white" onclick="playClick()">[X]</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <span class="text-gray-500 block mb-1">OPTICAL DISTORTION FACTOR</span>
+                    <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-aperture-magenta to-aperture-cyan" style="width: 14%"></div>
+                    </div>
+                    <span class="text-[9px] text-gray-500 block text-right mt-1">1.4% Chromatic Aberration</span>
+                </div>
+
+                <div>
+                    <span class="text-gray-500 block mb-1">COLOR DEPTH ALLOCATION</span>
+                    <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-aperture-magenta to-aperture-cyan" style="width: 98%"></div>
+                    </div>
+                    <span class="text-[9px] text-gray-500 block text-right mt-1">10-Bit RAW sRGB Gamut Mapping</span>
+                </div>
+
+                <!-- Live ticking diagnostics logs -->
+                <div>
+                    <span class="text-gray-500 block mb-2">DYNAMIC HARDWARE LOGS</span>
+                    <div class="bg-black/60 border border-white/5 rounded-lg p-3 text-[9px] text-aperture-cyan space-y-1.5 h-48 overflow-y-auto" id="diagnostic-ticker">
+                        <div>[07:11:42] Shutter release latch status: OK</div>
+                        <div>[07:12:01] Lens focal array alignment complete.</div>
+                        <div>[07:12:35] Color sensor calibration values mapping to memory array.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-white/10 pt-4">
+            <button onclick="clearDiagnosticsLog()" class="w-full py-2.5 bg-white/5 border border-white/10 text-[10px] hover:bg-aperture-magenta hover:text-white transition-all text-center">CLEAR MEMORY CACHE</button>
+        </div>
+    </div>
+
+    <section id="contact" class="relative z-10 py-24 md:py-32 bg-aperture-dark px-6 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                
+                <!-- Left Details context -->
+                <div class="lg:col-span-5 space-y-6">
+                    <span class="text-xs uppercase tracking-[0.4em] font-mono text-aperture-cyan font-semibold block">04 // SESSION ENROLLMENT</span>
+                    <!-- Name Highlighted in Contact Section -->
+                    <h2 class="text-3xl md:text-5xl font-display font-extrabold text-white">Hire <span class="text-aperture-cyan underline decoration-aperture-magenta decoration-4">LILIA</span></h2>
+                    <div class="h-1 w-20 bg-gradient-to-r from-aperture-cyan to-aperture-magenta mt-4 rounded-full"></div>
+                    
+                    <p class="text-gray-400 font-mono text-xs md:text-sm leading-relaxed">
+                        Looking to secure computational visual frameworks, architectural/creative campaigns, high-end fine-art photography files, or deep software integrations?
+                    </p>
+
+                    <p class="text-gray-400 font-mono text-xs md:text-sm leading-relaxed">
+                        Send a diagnostic handshake message protocol below.
+                    </p>
+
+                    <!-- Fast Contact Protocols -->
+                    <div class="space-y-4 pt-4 font-mono text-xs text-gray-300">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-aperture-cyan border border-white/5">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </div>
+                            <span>lilia@lensmatrix.io</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-aperture-magenta border border-white/5">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            </div>
+                            <span>San Francisco Peninsula, CA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right dynamic glass form (Handshake form simulation) -->
+                <div class="lg:col-span-7">
+                    <form id="handshake-form" class="glass-element rounded-2xl p-6 md:p-8 border border-white/10 space-y-6 shadow-2xl relative overflow-hidden">
+                        
+                        <!-- Success overlay -->
+                        <div id="form-complete" class="hidden absolute inset-0 bg-black/95 z-30 flex flex-col items-center justify-center text-center p-6">
+                            <div class="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center text-green-400 mb-4 animate-bounce">
+                                <i data-lucide="check" class="w-8 h-8"></i>
+                            </div>
+                            <h4 class="text-xl font-mono text-white mb-2 uppercase">Handshake Complete</h4>
+                            <p class="text-gray-500 max-w-sm text-xs font-mono">
+                                Transmission packets successfully dispatched to Lilia's inbox pipeline. Dynamic routing logs configured.
+                            </p>
+                        </div>
+
+                        <!-- Form Rows -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-2">Sender Node Identifier</label>
+                                <input type="text" id="contact-name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aperture-cyan transition-all font-mono" placeholder="Your Name">
+                            </div>
+                            <div>
+                                <label class="block font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-2">TCP-IP Transmission Target</label>
+                                <input type="email" id="contact-email" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aperture-cyan transition-all font-mono" placeholder="your@email.com">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-mono text-[10px] text-gray-400 uppercase tracking-wider mb-2">Message Payload Segment</label>
+                            <textarea id="contact-message" required rows="5" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-aperture-cyan transition-all font-mono" placeholder="State your detailed creative or hardware request payload here..."></textarea>
+                        </div>
+
+                        <!-- Action dispatch trigger -->
+                        <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-aperture-magenta via-aperture-dark to-aperture-cyan text-white font-mono text-xs tracking-wider uppercase border border-white/10 hover:shadow-lg hover:shadow-aperture-magenta/20 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center space-x-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>INITIATE TRANSACTION DIRECTORY</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="relative z-10 border-t border-white/5 py-12 bg-black/60 px-6 font-mono text-xs">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="text-center md:text-left">
+                <span class="block text-gray-500">© 2026 LILIA. Designed beautifully, compiled with extreme precision.</span>
+                <span class="block text-[10px] text-aperture-cyan mt-1">Light parameters mapped directly via dynamic Three.js algorithms.</span>
+            </div>
+
+            <!-- Social protocols connections links -->
+            <div class="flex items-center space-x-4">
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-aperture-cyan/30 text-gray-400 hover:text-aperture-cyan flex items-center justify-center transition-all duration-300">
+                    <i data-lucide="instagram" class="w-4 h-4"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-aperture-magenta/30 text-gray-400 hover:text-aperture-magenta flex items-center justify-center transition-all duration-300">
+                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-aperture-gold/30 text-gray-400 hover:text-aperture-gold flex items-center justify-center transition-all duration-300">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Load Three.js library from cdn -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        let audioCtx = null;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Tactile Click sound synthesis
+        function playClick() {
+            initAudioContext();
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        // Shutter Release sound synthesis (Noise burst + gain swell)
+        function playShutter() {
+            initAudioContext();
+            if (!audioCtx) return;
+            
+            // First Shutter Sound Component (high pitch click)
+            let clickOsc = audioCtx.createOscillator();
+            let clickGain = audioCtx.createGain();
+            clickOsc.connect(clickGain);
+            clickGain.connect(audioCtx.destination);
+            clickOsc.frequency.setValueAtTime(1500, audioCtx.currentTime);
+            clickOsc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.08);
+            clickGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            clickGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+            clickOsc.start();
+            clickOsc.stop(audioCtx.currentTime + 0.08);
+
+            // Second Shutter Sound Component (procedural analog white noise)
+            let bufferSize = audioCtx.sampleRate * 0.15; // 0.15 seconds
+            let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            let data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            let noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer;
+            let noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            let noiseGain = audioCtx.createGain();
+            
+            noiseNode.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(audioCtx.destination);
+            
+            noiseGain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            
+            noiseNode.start();
+            noiseNode.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // Focus Beep sound synthesis
+        function playBeep() {
+            initAudioContext();
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1800, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.12);
+        }
+
+        let scene, camera, renderer, lensCoreMesh, opticalFibers;
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        function init3DScene() {
+            const container = document.getElementById('canvas-container-main');
+            if (!container) return;
+            
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x030206, 0.002);
+
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.z = 850;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Create circular optical fibers paths network
+            const fiberCount = 1200;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(fiberCount * 3);
+            const colors = new Float32Array(fiberCount * 3);
+
+            const palette = [
+                new THREE.Color(0xFF007F), // Magenta
+                new THREE.Color(0x00F0FF), // Cyan
+                new THREE.Color(0xD4AF37), // Gold
+                new THREE.Color(0xFFFFFF)  // Light
+            ];
+
+            for (let i = 0; i < fiberCount * 3; i += 3) {
+                // Sphere shape structure
+                const radius = Math.random() * 1200 + 100;
+                const theta = THREE.MathUtils.randFloatSpread(360);
+                const phi = THREE.MathUtils.randFloatSpread(180);
+
+                positions[i] = radius * Math.sin(theta) * Math.cos(phi);
+                positions[i + 1] = radius * Math.sin(theta) * Math.sin(phi);
+                positions[i + 2] = radius * Math.cos(theta);
+
+                const c = palette[Math.floor(Math.random() * palette.length)];
+                colors[i] = c.r;
+                colors[i + 1] = c.g;
+                colors[i + 2] = c.b;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const pointsMaterial = new THREE.PointsMaterial({
+                size: 3.5,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.45,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            });
+
+            opticalFibers = new THREE.Points(geometry, pointsMaterial);
+            scene.add(opticalFibers);
+
+            // Build 3D Camera Aperture/Lens Wireframe mesh
+            const lensGeom = new THREE.CylinderGeometry(140, 160, 240, 8, 4, true);
+            const lensMat = new THREE.MeshBasicMaterial({
+                color: 0x00F0FF,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.1,
+                blending: THREE.AdditiveBlending
+            });
+            lensCoreMesh = new THREE.Mesh(lensGeom, lensMat);
+            lensCoreMesh.position.x = 220; // Float on the right side of desk screens
+            scene.add(lensCoreMesh);
+
+            // Add inner aperture leaves rings
+            const innerRingGeom = new THREE.TorusGeometry(100, 8, 8, 24);
+            const innerRingMat = new THREE.MeshBasicMaterial({
+                color: 0xFF007F,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending
+            });
+            const innerRing = new THREE.Mesh(innerRingGeom, innerRingMat);
+            innerRing.rotation.x = Math.PI / 2;
+            lensCoreMesh.add(innerRing);
+
+            // Bind interactions events
+            document.addEventListener('mousemove', onDocumentMouseMove);
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onDocumentMouseMove(event) {
+            mouseX = event.clientX - windowHalfX;
+            mouseY = event.clientY - windowHalfY;
+        }
+
+        function animate3DScene() {
+            requestAnimationFrame(animate3DScene);
+            if (!renderer || !scene || !camera) return;
+
+            // Target camera path tracking inertia
+            targetX = mouseX * 0.35;
+            targetY = mouseY * 0.35;
+
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (-targetY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            // Slowly rotate the point structures
+            if (opticalFibers) {
+                opticalFibers.rotation.y += 0.0004;
+                opticalFibers.rotation.x += 0.0001;
+            }
+
+            // Spin lens core
+            if (lensCoreMesh) {
+                lensCoreMesh.rotation.y -= 0.001;
+                lensCoreMesh.rotation.z += 0.0003;
+            }
+
+            renderer.render(scene, camera);
+        }
+    </script>
+
+    <script>
+        const lensLoupe = document.getElementById('lens-loupe');
+        const loupeCanvas = document.getElementById('loupe-canvas');
+        const loupeCtx = loupeCanvas.getContext('2d');
+        const photoCards = document.querySelectorAll('.photo-card');
+
+        photoCards.forEach(card => {
+            const container = card.querySelector('.image-container-target');
+            const img = container.querySelector('img');
+
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Position Loupe on desktop dynamically
+                lensLoupe.style.display = 'block';
+                lensLoupe.style.left = `${e.pageX - 70}px`;
+                lensLoupe.style.top = `${e.pageY - 70}px`;
+
+                // Render loupe zoomed frame onto canvas
+                loupeCtx.clearRect(0, 0, 140, 140);
+                loupeCtx.save();
+                
+                // Draw circular mask clip inside Loupe Canvas
+                loupeCtx.beginPath();
+                loupeCtx.arc(70, 70, 70, 0, Math.PI * 2);
+                loupeCtx.clip();
+
+                // Draw zoomed segment of Image source
+                const sourceSize = 50; // Capture 50x50px box
+                const destSize = 140;  // Scale up to fit canvas
+                
+                // Convert coordinates to natural image dimensions
+                const naturalX = (x / rect.width) * img.naturalWidth;
+                const naturalY = (y / rect.height) * img.naturalHeight;
+
+                try {
+                    loupeCtx.drawImage(
+                        img, 
+                        naturalX - sourceSize / 2, 
+                        naturalY - sourceSize / 2, 
+                        sourceSize, 
+                        sourceSize, 
+                        0, 
+                        0, 
+                        destSize, 
+                        destSize
+                    );
+                } catch(error) {
+                    // Fallback to placeholder color block if CORS restrictions are strict
+                    loupeCtx.fillStyle = 'rgba(0, 240, 255, 0.1)';
+                    loupeCtx.fillRect(0,0,140,140);
+                }
+
+                // Superimpose visual computer vision reticle crosshairs inside loupe canvas
+                loupeCtx.restore();
+                loupeCtx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
+                loupeCtx.lineWidth = 1;
+                loupeCtx.beginPath();
+                loupeCtx.moveTo(70, 0); loupeCtx.lineTo(70, 140);
+                loupeCtx.moveTo(0, 70); loupeCtx.lineTo(140, 70);
+                loupeCtx.stroke();
+            });
+
+            container.addEventListener('mouseleave', () => {
+                lensLoupe.style.display = 'none';
+            });
+        });
+    </script>
+
+    <script>
+        const darkroomSelector = document.getElementById('darkroom-image-selector');
+        const darkroomCanvas = document.getElementById('darkroom-canvas');
+        const darkroomCtx = darkroomCanvas.getContext('2d');
+        const darkroomLog = document.getElementById('darkroom-log-line');
+        const histogramCanvas = document.getElementById('histogram-canvas');
+        const histogramCtx = histogramCanvas.getContext('2d');
+
+        let activeDarkroomImage = new Image();
+        activeDarkroomImage.crossOrigin = "anonymous";
+        let activeFilterName = "raw";
+
+        function initDarkroom() {
+            // Load initial image selection
+            activeDarkroomImage.src = darkroomSelector.value;
+            activeDarkroomImage.onload = () => {
+                darkroomCanvas.width = activeDarkroomImage.naturalWidth || 600;
+                darkroomCanvas.height = activeDarkroomImage.naturalHeight || 400;
+                processDarkroomImage();
+            };
+        }
+
+        // Listener for Selector change
+        darkroomSelector.addEventListener('change', () => {
+            playClick();
+            darkroomLog.textContent = "Loading file payload source...";
+            activeDarkroomImage.src = darkroomSelector.value;
+            activeDarkroomImage.onload = () => {
+                processDarkroomImage();
+            };
+        });
+
+        function processDarkroomImage() {
+            if (!activeDarkroomImage.complete) return;
+            
+            // Clean previous frame
+            darkroomCtx.clearRect(0, 0, darkroomCanvas.width, darkroomCanvas.height);
+            darkroomCtx.drawImage(activeDarkroomImage, 0, 0);
+
+            // Capture raw pixel coordinate buffer array
+            try {
+                let imgData = darkroomCtx.getImageData(0, 0, darkroomCanvas.width, darkroomCanvas.height);
+                let pixels = imgData.data;
+
+                if (activeFilterName === 'grayscale') {
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        let r = pixels[i];
+                        let g = pixels[i + 1];
+                        let b = pixels[i + 2];
+                        let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                        pixels[i] = gray;
+                        pixels[i + 1] = gray;
+                        pixels[i + 2] = gray;
+                    }
+                    darkroomCtx.putImageData(imgData, 0, 0);
+                    darkroomLog.textContent = "Applied formula: luminosity_y_channel() complete.";
+                } 
+                else if (activeFilterName === 'chromatic') {
+                    // Shift the color matrices coordinates slightly
+                    let shift = Math.floor(darkroomCanvas.width * 0.015) * 4;
+                    for (let i = 0; i < pixels.length - shift; i += 4) {
+                        pixels[i] = pixels[i + shift]; // Shift red channel coordinates
+                    }
+                    darkroomCtx.putImageData(imgData, 0, 0);
+                    darkroomLog.textContent = "Applied matrix: dynamic_chromatic_split() complete.";
+                }
+                else if (activeFilterName === 'sobel') {
+                    // Fast Sobel Operator Edge Detection Algorithm implementation
+                    let width = imgData.width;
+                    let height = imgData.height;
+                    let grayData = new Uint8Array(width * height);
+                    
+                    // First compile to monochrome grayscale array
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        let gray = 0.299 * pixels[i] + 0.587 * pixels[i+1] + 0.114 * pixels[i+2];
+                        grayData[i / 4] = gray;
+                    }
+
+                    let outputData = darkroomCtx.createImageData(width, height);
+                    let outPixels = outputData.data;
+
+                    // Execute Sobel matrix kernels
+                    for (let y = 1; y < height - 1; y++) {
+                        for (let x = 1; x < width - 1; x++) {
+                            let idx = y * width + x;
+                            
+                            // Horizontal Kernel Convolution
+                            let pixel_x = (
+                                -1 * grayData[idx - width - 1] + 1 * grayData[idx - width + 1] +
+                                -2 * grayData[idx - 1]         + 2 * grayData[idx + 1] +
+                                -1 * grayData[idx + width - 1] + 1 * grayData[idx + width + 1]
+                            );
+
+                            // Vertical Kernel Convolution
+                            let pixel_y = (
+                                -1 * grayData[idx - width - 1] - 2 * grayData[idx - width] - 1 * grayData[idx - width + 1] +
+                                 1 * grayData[idx + width - 1] + 2 * grayData[idx + width] + 1 * grayData[idx + width + 1]
+                            );
+
+                            let magnitude = Math.sqrt(pixel_x * pixel_x + pixel_y * pixel_y);
+                            magnitude = magnitude > 255 ? 255 : (magnitude < 0 ? 0 : magnitude);
+                            
+                            let outIdx = idx * 4;
+                            // Inject neon cyan edge colors
+                            outPixels[outIdx] = magnitude * 0.0;     // Red
+                            outPixels[outIdx+1] = magnitude * 0.94; // Green
+                            outPixels[outIdx+2] = magnitude * 1.0;  // Blue
+                            outPixels[outIdx+3] = 255;              // Alpha
+                        }
+                    }
+                    darkroomCtx.putImageData(outputData, 0, 0);
+                    darkroomLog.textContent = "Applied kernels: convolution_sobel_edge_matrix() complete.";
+                } else {
+                    darkroomLog.textContent = "Applied bypass: RAW coordinates uncompromised.";
+                }
+
+                // Compute and render updated histogram data graph
+                computeLiveHistogram(pixels);
+
+            } catch (corsErr) {
+                darkroomLog.innerHTML = `<span class="text-aperture-magenta">CORS restriction active on remote asset. Showing scaled original.</span>`;
+            }
+        }
+
+        // Apply darkroom operation wrapper
+        function applyDarkroomFilter(filterType) {
+            playBeep();
+            activeFilterName = filterType;
+            
+            // Highlight button states
+            document.querySelectorAll('.darkroom-btn').forEach(btn => {
+                btn.classList.remove('border-aperture-magenta', 'border-aperture-cyan', 'border-aperture-gold');
+            });
+            const activeBtn = document.getElementById(`btn-${filterType}`);
+            if (activeBtn) {
+                if (filterType === 'grayscale') activeBtn.classList.add('border-aperture-magenta');
+                if (filterType === 'chromatic') activeBtn.classList.add('border-aperture-cyan');
+                if (filterType === 'sobel') activeBtn.classList.add('border-aperture-gold');
+                if (filterType === 'raw') activeBtn.classList.add('border-aperture-cyan');
+            }
+
+            processDarkroomImage();
+        }
+
+        // Compute Red/Green/Blue color spectrum level bins
+        function computeLiveHistogram(pixelArray) {
+            let rHist = new Array(256).fill(0);
+            let gHist = new Array(256).fill(0);
+            let bHist = new Array(256).fill(0);
+
+            // Count occurrences (subsample for CPU optimization)
+            for (let i = 0; i < pixelArray.length; i += 16) {
+                rHist[pixelArray[i]]++;
+                gHist[pixelArray[i+1]]++;
+                bHist[pixelArray[i+2]]++;
+            }
+
+            // Draw graph lines onto histogram canvas
+            histogramCtx.clearRect(0, 0, histogramCanvas.width, histogramCanvas.height);
+            let maxCount = Math.max(...rHist, ...gHist, ...bHist);
+
+            const drawHistogramLine = (histData, colorStyle) => {
+                histogramCtx.strokeStyle = colorStyle;
+                histogramCtx.lineWidth = 1.5;
+                histogramCtx.beginPath();
+                let binWidth = histogramCanvas.width / 256;
+                for (let i = 0; i < 256; i++) {
+                    let heightRatio = histData[i] / maxCount;
+                    let yVal = histogramCanvas.height - (heightRatio * histogramCanvas.height);
+                    if (i === 0) {
+                        histogramCtx.moveTo(0, yVal);
+                    } else {
+                        histogramCtx.lineTo(i * binWidth, yVal);
+                    }
+                }
+                histogramCtx.stroke();
+            };
+
+            // Overlay separate channels
+            drawHistogramLine(rHist, 'rgba(255, 0, 127, 0.7)'); // Magenta / Red channel
+            drawHistogramLine(gHist, 'rgba(0, 240, 255, 0.7)'); // Cyan / Green channel
+            drawHistogramLine(bHist, 'rgba(212, 175, 55, 0.7)'); // Gold / Blue channel
+        }
+    </script>
+
+    <script>
+        const apertureSlider = document.getElementById('aperture-slider');
+        const apertureVal = document.getElementById('aperture-val');
+
+        apertureSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value).toFixed(1);
+            apertureVal.textContent = `f/${val}`;
+            
+            // Correlate interactive rotation values in Three.js lens scale
+            if (lensCoreMesh) {
+                // Changing aperture "scales" the camera wireframe rings depth
+                const scaleFactor = 1 + (1.2 / val);
+                lensCoreMesh.scale.set(scaleFactor, scaleFactor, 1);
+            }
+        });
+    </script>
+
+    <script>
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxTitle = document.getElementById('lightbox-title');
+        const lightboxDesc = document.getElementById('lightbox-desc');
+        const lightboxCategory = document.getElementById('lightbox-category');
+        const lightboxClose = document.getElementById('lightbox-close');
+        const lightboxCopyBtn = document.getElementById('lightbox-copy');
+
+        const exifShutter = document.getElementById('exif-shutter');
+        const exifAperture = document.getElementById('exif-aperture');
+        const exifIso = document.getElementById('exif-iso');
+        const exifFocal = document.getElementById('exif-focal');
+
+        let activeLightboxURL = '';
+
+        document.querySelectorAll('.photo-card').forEach(photo => {
+            photo.addEventListener('click', () => {
+                playShutter(); // Play mechanical shutter release simulation
+
+                const url = photo.getAttribute('data-img');
+                const title = photo.getAttribute('data-title');
+                const desc = photo.getAttribute('data-desc');
+                const category = photo.getAttribute('data-category');
+
+                const shutter = photo.getAttribute('data-shutter');
+                const aperture = photo.getAttribute('data-aperture');
+                const iso = photo.getAttribute('data-iso');
+                const focal = photo.getAttribute('data-focal');
+
+                activeLightboxURL = url;
+                lightboxImg.src = url + "?q=90&w=1200&auto=format&fit=crop";
+                lightboxTitle.textContent = title;
+                lightboxDesc.textContent = desc;
+                
+                lightboxCategory.textContent = category.toUpperCase();
+                if (category === 'urban') {
+                    lightboxCategory.className = "text-[9px] font-bold uppercase tracking-[0.2em] text-aperture-magenta px-2.5 py-1 rounded bg-aperture-magenta/10 border border-aperture-magenta/20 inline-block mb-3";
+                } else if (category === 'natural') {
+                    lightboxCategory.className = "text-[9px] font-bold uppercase tracking-[0.2em] text-aperture-cyan px-2.5 py-1 rounded bg-aperture-cyan/10 border border-aperture-cyan/20 inline-block mb-3";
+                } else {
+                    lightboxCategory.className = "text-[9px] font-bold uppercase tracking-[0.2em] text-aperture-gold px-2.5 py-1 rounded bg-aperture-gold/10 border border-aperture-gold/20 inline-block mb-3";
+                }
+
+                exifShutter.textContent = shutter;
+                exifAperture.textContent = aperture;
+                exifIso.textContent = `ISO ${iso}`;
+                exifFocal.textContent = focal;
+
+                lightbox.classList.remove('hidden');
+                lightbox.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            });
+        });
+
+        lightboxClose.addEventListener('click', () => {
+            lightbox.classList.add('hidden');
+            lightbox.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        });
+
+        // Copy mechanism
+        lightboxCopyBtn.addEventListener('click', () => {
+            playBeep();
+            if (activeLightboxURL) {
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = activeLightboxURL;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+
+                const originalHTML = lightboxCopyBtn.innerHTML;
+                lightboxCopyBtn.innerHTML = `<i data-lucide="check" class="w-3 h-3 text-green-400"></i> COPIED PACKET`;
+                lucide.createIcons();
+                setTimeout(() => {
+                    lightboxCopyBtn.innerHTML = originalHTML;
+                    lucide.createIcons();
+                }, 2000);
+            }
+        });
+
+        // Gallery filter logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const photoCardsArray = document.querySelectorAll('.photo-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-aperture-magenta', 'text-white');
+                    b.classList.add('text-gray-400');
+                });
+                btn.classList.add('bg-aperture-magenta', 'text-white');
+                btn.classList.remove('text-gray-400');
+
+                const targetCategory = btn.getAttribute('data-category');
+                photoCardsArray.forEach(card => {
+                    const category = card.getAttribute('data-category');
+                    if (targetCategory === 'all' || category === targetCategory) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        const bootOverlay = document.getElementById('boot-overlay');
+        const shutterTrigger = document.getElementById('shutter-trigger-btn');
+
+        shutterTrigger.addEventListener('click', () => {
+            playShutter();
+            
+            // Collapse boot screen upwards simulating shutter doors opening
+            bootOverlay.classList.add('translate-y-[-100%]');
+            setTimeout(() => {
+                bootOverlay.style.display = 'none';
+            }, 1000);
+
+            // Launch the 3D scene rendering engine
+            init3DScene();
+            animate3DScene();
+
+            // Run Digital Darkroom defaults
+            initDarkroom();
+        });
+    </script>
+
+    <script>
+        const diagnosticPanel = document.getElementById('diagnostic-panel');
+        const diagTrigger = document.getElementById('system-diagnostic-trigger');
+        const diagClose = document.getElementById('close-diagnostic');
+        const diagTicker = document.getElementById('diagnostic-ticker');
+
+        diagTrigger.addEventListener('click', () => {
+            playClick();
+            diagnosticPanel.classList.remove('hidden');
+            setTimeout(() => {
+                diagnosticPanel.classList.remove('translate-x-full');
+            }, 50);
+            
+            // Populate simulated rolling diagnostic code lines
+            startDiagnosticTicker();
+        });
+
+        diagClose.addEventListener('click', () => {
+            diagnosticPanel.classList.add('translate-x-full');
+            setTimeout(() => {
+                diagnosticPanel.classList.add('hidden');
+            }, 300);
+        });
+
+        function startDiagnosticTicker() {
+            const lines = [
+                "[07:13:00] Initializing dynamic camera coordinate translation matrix...",
+                "[07:13:12] Auto-white balance matrix: [0.98, 1.02, 1.05]",
+                "[07:13:25] Focal state: CONFIRMED focal length lock on target.",
+                "[07:13:40] RGB Channel stack distribution index evaluated.",
+                "[07:13:58] Computer Vision Pipeline optimized successfully."
+            ];
+            
+            setInterval(() => {
+                if (diagnosticPanel.classList.contains('hidden')) return;
+                const randomLine = lines[Math.floor(Math.random() * lines.length)];
+                const timeStr = new Date().toLocaleTimeString();
+                const logDiv = document.createElement('div');
+                logDiv.innerHTML = `<span class="text-aperture-magenta">[${timeStr}]</span> ${randomLine}`;
+                diagTicker.appendChild(logDiv);
+                diagTicker.scrollTop = diagTicker.scrollHeight;
+            }, 2500);
+        }
+
+        function clearDiagnosticsLog() {
+            playBeep();
+            diagTicker.innerHTML = `<div class="text-yellow-400">[SYSTEM WARNING] Cache flushed successfully.</div>`;
+        }
+    </script>
+
+    <script>
+        const handshakeForm = document.getElementById('handshake-form');
+        const formComplete = document.getElementById('form-complete');
+
+        handshakeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            playShutter(); // Confirm sending with camera shutter sound!
+
+            const submitBtn = handshakeForm.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> <span>ENCRYPTING SECURE PACKETS...</span>`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                formComplete.classList.remove('hidden');
+                submitBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> <span>INITIATE TRANSACTION DIRECTORY</span>`;
+                lucide.createIcons();
+                handshakeForm.reset();
+            }, 1500);
+        });
+
+        // Initialize Lucide Icons instantly
+        lucide.createIcons();
+    </script>
+</body>
+</html>
