@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Lilia's Universe 🦢</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
+body{
+overflow-x:hidden;
+background:#050510;
+color:white;
+min-height:100vh;
+}
+
+body.dream{
+background:
+linear-gradient(
+135deg,
+#ffb6d9,
+#d8b4ff,
+#9fdfff,
+#ffd6a5
+);
+animation:bgMove 15s linear infinite;
+}
+
+@keyframes bgMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+z-index:-2;
+}
+
+#intro{
+position:fixed;
+inset:0;
+background:black;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:9999;
+}
+
+#star{
+width:12px;
+height:12px;
+border-radius:50%;
+background:white;
+box-shadow:0 0 30px white;
+animation:pulse 2s infinite;
+cursor:pointer;
+}
+
+@keyframes pulse{
+50%{
+transform:scale(2);
+}
+}
+
+#introContent{
+display:none;
+text-align:center;
+}
+
+#intro h1{
+font-size:5rem;
+margin-bottom:10px;
+background:linear-gradient(
+90deg,
+#fff,
+#ffbdf0,
+#9fe7ff
+);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+#enterBtn{
+padding:15px 40px;
+border:none;
+border-radius:50px;
+cursor:pointer;
+font-size:1rem;
+margin-top:20px;
+background:white;
+}
+
+.hero{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+text-align:center;
+padding:30px;
+}
+
+.hero h1{
+font-size:7vw;
+line-height:1;
+}
+
+.glow{
+background:linear-gradient(
+90deg,
+#ff9ed8,
+#9fdfff,
+#d8b4ff
+);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.section{
+padding:120px 5%;
+position:relative;
+}
+
+.sectionTitle{
+font-size:3rem;
+margin-bottom:50px;
+text-align:center;
+}
+
+.constellation{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+gap:30px;
+}
+
+.photo{
+position:relative;
+height:320px;
+overflow:hidden;
+border-radius:25px;
+cursor:pointer;
+transform-style:preserve-3d;
+transition:.5s;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(15px);
+border:1px solid rgba(255,255,255,.1);
+}
+
+.photo:hover{
+transform:
+rotateY(10deg)
+rotateX(10deg)
+translateY(-10px)
+scale(1.05);
+}
+
+.photo img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.photo span{
+position:absolute;
+bottom:10px;
+left:10px;
+background:rgba(0,0,0,.5);
+padding:10px;
+border-radius:15px;
+}
+
+#lightbox{
+position:fixed;
+inset:0;
+display:none;
+justify-content:center;
+align-items:center;
+background:rgba(0,0,0,.85);
+backdrop-filter:blur(20px);
+z-index:10000;
+}
+
+#lightbox img{
+max-width:90%;
+max-height:90%;
+border-radius:30px;
+box-shadow:0 0 50px #fff3;
+}
+
+.planetWrap{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:40px;
+}
+
+.planet{
+width:200px;
+height:200px;
+border-radius:50%;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:1.3rem;
+cursor:pointer;
+background:
+linear-gradient(
+135deg,
+rgba(255,255,255,.2),
+rgba(255,255,255,.05)
+);
+backdrop-filter:blur(20px);
+animation:float 5s ease-in-out infinite;
+}
+
+@keyframes float{
+50%{
+transform:translateY(-20px);
+}
+}
+
+#letter{
+padding:150px 10%;
+text-align:center;
+}
+
+.letterCard{
+max-width:900px;
+margin:auto;
+background:
+rgba(255,255,255,.08);
+backdrop-filter:blur(20px);
+padding:50px;
+border-radius:30px;
+line-height:2;
+}
+
+.buttons{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:20px;
+margin-top:40px;
+}
+
+.magicBtn{
+padding:15px 30px;
+border:none;
+border-radius:50px;
+cursor:pointer;
+font-size:1rem;
+background:white;
+}
+
+#swan{
+position:fixed;
+font-size:32px;
+right:20px;
+bottom:20px;
+cursor:pointer;
+transition:.3s;
+z-index:999;
+}
+
+.trail{
+position:fixed;
+width:10px;
+height:10px;
+border-radius:50%;
+background:white;
+pointer-events:none;
+opacity:.6;
+}
+
+.spark{
+position:fixed;
+font-size:12px;
+pointer-events:none;
+animation:spark 1s forwards;
+}
+
+@keyframes spark{
+to{
+transform:
+translateY(-50px)
+scale(0);
+opacity:0;
+}
+}
+
+footer{
+padding:100px 20px;
+text-align:center;
+font-size:1.2rem;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div id="intro">
+
+<div id="star"></div>
+
+<div id="introContent">
+<h1>Lilia 🦢</h1>
+<p>Welcome to a universe captured through her eyes.</p>
+<button id="enterBtn">Enter Universe</button>
+</div>
+
+</div>
+
+<div id="lightbox">
+<img id="lightImg">
+</div>
+
+<div id="swan">🦢</div>
+
+<section class="hero">
+
+<div>
+
+<h1 class="glow">
+LILIA'S<br>UNIVERSE
+</h1>
+
+<p style="margin-top:20px">
+A world of curiosity, travel and imagination.
+</p>
+
+</div>
+
+</section>
+
+<section class="section">
+
+<h2 class="sectionTitle">
+Memory Constellation ✨
+</h2>
+
+<div class="constellation" id="gallery"></div>
+
+</section>
+
+<section class="section">
+
+<h2 class="sectionTitle">
+Creative DNA Galaxy 🌍
+</h2>
+
+<div class="planetWrap">
+
+<div class="planet">📷 Photography</div>
+<div class="planet">🌍 Travel</div>
+<div class="planet">💻 Computer Science</div>
+<div class="planet">💃 Dance</div>
+
+</div>
+
+</section>
+
+<section id="letter">
+
+<h2 class="sectionTitle">
+Letter Dimension 💌
+</h2>
+
+<div class="letterCard">
+
+<p>
+
+Some people collect moments.
+
+Others transform them into stories.
+
+The beauty of creativity is not only in what is created,
+but in the way it changes how we see the world.
+
+This universe celebrates curiosity,
+adventure,
+photography,
+imagination,
+and the ability to discover wonder in ordinary places.
+
+May every photograph remain a doorway,
+every journey become a chapter,
+and every dream continue expanding into new horizons.
+
+✨
+
+</p>
+
+<div class="buttons">
+
+<button class="magicBtn">
+✨ Continue Exploring
+</button>
+
+<button class="magicBtn">
+📷 Memory Collection
+</button>
+
+<button class="magicBtn">
+🦢 Return To Reality
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<footer>
+
+✨ This magical universe was secretly built for Lilia ✨
+
+</footer>
+
+<script>
+
+const images=[
+
+"https://i.ibb.co/TDsRgbhV/photo-27-2026-06-10-15-40-32.jpg",
+"https://i.ibb.co/qFjhRJkr/photo-25-2026-06-10-15-40-32.jpg",
+"https://i.ibb.co/KzVjLVGX/photo-23-2026-06-10-15-40-32.jpg",
+"https://i.ibb.co/YTwM4Vk6/photo-22-2026-06-10-15-40-32.jpg",
+"https://i.ibb.co/tMWgHmqQ/photo-20-2026-06-10-15-40-32.jpg",
+"https://i.ibb.co/TM2MtkbP/photo-21-2026-06-10-15-40-32.jpg",
+"https://i.ibb.co/ZpGNtgQ9/photo-19-2026-06-10-15-40-32.jpg",
+"https://i.ibb.co/Zzhcf3tt/photo-17-2026-06-10-15-40-32.jpg"
+
+];
+
+const gallery=document.getElementById("gallery");
+
+images.forEach((src,i)=>{
+
+const div=document.createElement("div");
+
+div.className="photo";
+
+div.innerHTML=
+`
+<img src="${src}">
+<span>Memory ${i+1}</span>
+`;
+
+gallery.appendChild(div);
+
+div.onclick=()=>{
+
+lightbox.style.display="flex";
+lightImg.src=src;
+
+};
+
+});
+
+lightbox.onclick=()=>{
+lightbox.style.display="none";
+};
+
+star.onclick=()=>{
+
+star.style.display="none";
+
+introContent.style.display="block";
+
+};
+
+enterBtn.onclick=()=>{
+
+intro.style.opacity=0;
+
+setTimeout(()=>{
+intro.remove();
+},1000);
+
+};
+
+document.addEventListener("mousemove",e=>{
+
+const t=document.createElement("div");
+
+t.className="trail";
+
+t.style.left=e.clientX+"px";
+t.style.top=e.clientY+"px";
+
+document.body.appendChild(t);
+
+setTimeout(()=>{
+t.remove();
+},400);
+
+});
+
+document.addEventListener("click",e=>{
+
+for(let i=0;i<10;i++){
+
+let s=document.createElement("div");
+
+s.className="spark";
+
+s.innerHTML="✨";
+
+s.style.left=e.clientX+"px";
+s.style.top=e.clientY+"px";
+
+document.body.appendChild(s);
+
+setTimeout(()=>s.remove(),1000);
+
+}
+
+});
+
+const swan=document.getElementById("swan");
+
+let transformed=false;
+
+swan.onclick=()=>{
+
+if(transformed) return;
+
+document.body.classList.add("dream");
+
+transformed=true;
+
+alert("The Second Universe Has Awakened ✨");
+
+};
+
+const canvas=document.getElementById("bg");
+const ctx=canvas.getContext("2d");
+
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+let stars=[];
+
+for(let i=0;i<150;i++){
+
+stars.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2
+
+});
+
+}
+
+function animate(){
+
+ctx.clearRect(
+0,0,
+canvas.width,
+canvas.height
+);
+
+stars.forEach(s=>{
+
+ctx.beginPath();
+
+ctx.arc(
+s.x,
+s.y,
+s.r,
+0,
+Math.PI*2
+);
+
+ctx.fillStyle="white";
+
+ctx.fill();
+
+s.y+=0.1;
+
+if(s.y>canvas.height){
+s.y=0;
+}
+
+});
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+
+</script>
+
+</body>
+</html>

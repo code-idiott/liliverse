@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lilia's Little Universe 🌷</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Quicksand:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        /* ================= CSS VARIABLES & THEMES ================= */
+        :root {
+            --bg-color: #fff0f5;
+            --text-color: #5c4d5c;
+            --pink: #ffb6c1;
+            --lavender: #e6e6fa;
+            --baby-blue: #b0e0e6;
+            --peach: #ffdab9;
+            --soft-yellow: #fffacd;
+            --sky-blue: #87cefa;
+            --coral: #ff7f50;
+            --font-hand: 'Caveat', cursive;
+            --font-sans: 'Quicksand', sans-serif;
+            --glow: 0px 0px 0px transparent;
+        }
+
+        body.magical-mode {
+            --bg-color: #2b1b3d;
+            --text-color: #fff0f5;
+            --pink: #ff69b4;
+            --lavender: #d8bfd8;
+            --baby-blue: #87ceeb;
+            --peach: #ffb6c1;
+            --glow: 0px 0px 20px rgba(255, 105, 180, 0.6);
+            transition: background-color 2s ease, color 2s ease;
+        }
+
+        /* ================= RESET & GLOBAL ================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ff7f50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>'), auto; }
+        body { font-family: var(--font-sans); background: linear-gradient(135deg, var(--bg-color), var(--lavender), var(--peach)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: var(--text-color); overflow-x: hidden; position: relative; }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ================= LOADING SCREEN ================= */
+        #loading-screen {
+            position: fixed; inset: 0; background: var(--bg-color); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s ease;
+        }
+        .airplane-container { position: relative; width: 300px; height: 100px; }
+        .paper-plane { position: absolute; font-size: 2rem; animation: flyPlane 3s ease-in-out forwards; }
+        .loading-text { font-family: var(--font-hand); font-size: 3rem; color: var(--coral); opacity: 0; animation: fadeInText 1s 1.5s forwards; }
+        
+        @keyframes flyPlane {
+            0% { transform: translate(0, 50px) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(300px, -20px) rotate(-15deg); opacity: 0; }
+        }
+        @keyframes fadeInText { to { opacity: 1; } }
+
+        /* ================= BACKGROUND FLOATING ELEMENTS ================= */
+        .bg-floater { position: absolute; font-size: 1.5rem; opacity: 0.5; pointer-events: none; z-index: 0; animation: floatAnim var(--dur, 6s) ease-in-out infinite alternate; }
+        @keyframes floatAnim {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            100% { transform: translateY(-30px) rotate(10deg) scale(1.1); }
+        }
+
+        /* ================= CURSOR TRAIL ================= */
+        #cursor-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+
+        /* ================= HERO SECTION ================= */
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; z-index: 10; padding: 20px; }
+        .hero h1 { font-family: var(--font-hand); font-size: 6rem; color: var(--coral); text-shadow: 2px 2px 0px var(--soft-yellow), var(--glow); animation: bounce 2s infinite; }
+        .hero p { font-size: 1.5rem; margin-top: 10px; background: rgba(255,255,255,0.4); padding: 10px 20px; border-radius: 20px; border: 2px dashed var(--pink); }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* ================= AMAZING SURPRISE STICKER BUTTONS ================= */
+        .tool-btn {
+            background: #fff;
+            color: #333;
+            border: 3px solid #333;
+            padding: 8px 18px;
+            font-family: var(--font-hand);
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            margin: 5px;
+            border-radius: 255% 15% 225% 15% / 15% 225% 15% 255%; /* Handmade organic edges */
+            box-shadow: 4px 4px 0px #333;
+            transition: all 0.2s ease-out;
+            transform: rotate(calc(var(--r, 0) * 1deg));
+        }
+        .tool-btn:hover {
+            transform: scale(1.1) rotate(0deg);
+            box-shadow: 1px 1px 0px #333;
+            background: var(--soft-yellow);
+        }
+        .tool-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Custom Sticker Shades */
+        .tool-btn-pink { background: var(--pink); --r: -2; }
+        .tool-btn-blue { background: var(--sky-blue); --r: 3; }
+        .tool-btn-peach { background: var(--peach); --r: -4; }
+        .tool-btn-stamp { background: var(--lavender); --r: 2; border-style: dashed; }
+        .tool-btn-clear { background: #ffcccb; --r: -1; }
+
+        /* ================= SCRAPBOOK PHOTO WALL ================= */
+        .section-title { font-family: var(--font-hand); font-size: 4rem; text-align: center; margin: 60px 0 20px; color: var(--coral); text-shadow: var(--glow); }
+        .scrapbook-wall { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; padding: 40px 20vw; position: relative; z-index: 10; }
+        .polaroid { background: white; padding: 10px 10px 40px 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1), var(--glow); position: relative; width: 220px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: grab; border-radius: 2px; }
+        .polaroid img { width: 100%; height: 200px; object-fit: cover; filter: sepia(10%); transition: filter 0.3s; }
+        body.magical-mode .polaroid { background: #222; }
+        body.magical-mode .polaroid img { filter: saturate(1.2) brightness(1.1); }
+        .polaroid:hover { transform: scale(1.1) rotate(0deg) !important; z-index: 20; box-shadow: 0 15px 30px rgba(0,0,0,0.2), var(--glow); }
+        
+        .tape { position: absolute; width: 80px; height: 25px; background: rgba(255, 182, 193, 0.7); top: -10px; left: 50%; transform: translateX(-50%) rotate(-3deg); mix-blend-mode: multiply; }
+        .pin { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .photo-note { font-family: var(--font-hand); font-size: 1.2rem; position: absolute; bottom: 5px; left: 0; width: 100%; text-align: center; color: #333; }
+        body.magical-mode .photo-note { color: #fff; }
+        .sticker { position: absolute; font-size: 1.5rem; bottom: -10px; right: -10px; animation: wiggle 3s infinite; }
+
+        @keyframes wiggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+
+        .polaroid:nth-child(even) { transform: rotate(3deg); }
+        .polaroid:nth-child(odd) { transform: rotate(-4deg); }
+        .polaroid:nth-child(3n) { transform: rotate(5deg); }
+        .polaroid:nth-child(5n) { transform: rotate(-6deg); }
+
+        /* ================= ABOUT LILIA SECTION ================= */
+        .about-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; position: relative; z-index: 10; }
+        .doodle-card { background: rgba(255,255,255,0.6); backdrop-filter: blur(5px); border: 3px solid var(--baby-blue); border-radius: 20px; width: 200px; padding: 20px; text-align: center; transition: all 0.3s; box-shadow: 5px 5px 0px var(--baby-blue); }
+        .doodle-card:hover { transform: translateY(-10px); box-shadow: 10px 10px 0px var(--baby-blue); }
+        .doodle-card .icon { font-size: 3rem; margin-bottom: 10px; display: inline-block; }
+        .doodle-card:nth-child(1) .icon { animation: flashCam 2s infinite; }
+        .doodle-card:nth-child(2) .icon { animation: floatAnim 3s infinite alternate; }
+        .doodle-card:nth-child(3) .icon { animation: codeType 1s infinite alternate; }
+        .doodle-card:nth-child(4) .icon { animation: danceMove 2s infinite; }
+        .doodle-card h3 { font-family: var(--font-hand); font-size: 1.8rem; color: var(--coral); }
+        
+        @keyframes flashCam { 0%, 90% { opacity: 1; } 95% { opacity: 0; } 100% { opacity: 1; filter: brightness(2); } }
+        @keyframes codeType { from { transform: translateX(-3px); } to { transform: translateX(3px); } }
+        @keyframes danceMove { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } }
+
+        /* ================= MEMORY MACHINE ================= */
+        .gumball-section { text-align: center; padding: 60px 20px; position: relative; z-index: 10; }
+        .machine-container { position: relative; width: 250px; height: 350px; margin: 0 auto; cursor: pointer; transition: transform 0.2s; }
+        .machine-container:active { transform: scale(0.95); }
+        .glass-dome { width: 180px; height: 180px; background: rgba(255,255,255,0.4); border: 5px solid var(--pink); border-radius: 50%; margin: 0 auto; position: relative; overflow: hidden; box-shadow: inset -10px -10px 20px rgba(0,0,0,0.1); }
+        .base { width: 140px; height: 160px; background: var(--coral); margin: -20px auto 0; border-radius: 20px 20px 10px 10px; border: 5px solid #d9534f; position: relative; display: flex; justify-content: center; align-items: center; }
+        .knob { width: 40px; height: 40px; background: white; border-radius: 50%; border: 3px solid #ccc; box-shadow: 0 4px 0 #999; transition: transform 0.5s ease; }
+        .machine-container:hover .knob { transform: rotate(90deg); }
+        .dispenser { width: 60px; height: 40px; background: #333; position: absolute; bottom: 20px; border-radius: 10px 10px 0 0; }
+        .mini-ball { position: absolute; font-size: 2rem; }
+        
+        .compliment-bubble { position: absolute; background: white; color: var(--coral); font-family: var(--font-hand); font-size: 2rem; padding: 10px 20px; border-radius: 30px; border: 3px solid var(--lavender); box-shadow: 0 10px 20px rgba(0,0,0,0.1); top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); opacity: 0; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; white-space: nowrap; z-index: 50; }
+        .compliment-bubble.pop { transform: translate(-50%, -150%) scale(1); opacity: 1; }
+
+        /* ================= INTERACTIVE DOODLE AREA ================= */
+        .doodle-area-wrapper { text-align: center; padding: 40px 20px; position: relative; z-index: 10; }
+        #draw-canvas { background: rgba(255,255,255,0.7); border: 4px dashed var(--baby-blue); border-radius: 20px; cursor: crosshair; touch-action: none; max-width: 100%; box-shadow: var(--glow); }
+        .doodle-tools { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+        /* ================= SCROLLING POPUPS ================= */
+        .scroll-popup { position: fixed; background: white; padding: 10px 20px; font-family: var(--font-hand); font-size: 1.5rem; color: var(--coral); border-radius: 20px; border: 2px solid var(--pink); box-shadow: 5px 5px 0px rgba(0,0,0,0.1); opacity: 0; pointer-events: none; transition: opacity 0.5s, transform 0.5s; z-index: 9000; }
+        .scroll-popup.show { opacity: 1; transform: translateY(-20px) rotate(-3deg); }
+
+        /* ================= SECRET SWAN TRIGGER ================= */
+        .secret-swan { position: absolute; bottom: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; opacity: 0.2; transition: 0.3s; z-index: 100; animation: wiggle 2s infinite; }
+        .secret-swan:hover { opacity: 1; transform: scale(1.6); }
+
+        /* ================= SECRET LETTER & MAGICAL OVERLAY ================= */
+        #magical-overlay { position: fixed; inset: 0; background: rgba(20, 10, 30, 0.88); backdrop-filter: blur(8px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 1s; }
+        #magical-overlay.active { display: flex; opacity: 1; }
+        
+        .envelope-wrapper { position: relative; width: 340px; height: 220px; cursor: pointer; transition: transform 0.5s; }
+        .envelope-wrapper:hover { transform: scale(1.05); }
+        .envelope { width: 100%; height: 100%; background: #ffb6c1; position: absolute; border-radius: 10px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 2px solid #ff9db0; display: flex; justify-content: center; align-items: center; }
+        .envelope::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 170px solid transparent; border-right: 170px solid transparent; border-top: 110px solid #ff9db0; z-index: 3; transform-origin: top; transition: transform 1s ease-in-out; }
+        .envelope.open::before { transform: rotateX(180deg); z-index: 1; }
+        
+        /* The Unfolded Paper Object */
+        .letter-paper { position: absolute; bottom: 10px; left: 10px; right: 10px; background: #fffdf5; border-radius: 5px; z-index: 2; padding: 40px 30px; font-family: var(--font-hand); font-size: 1.6rem; color: #2e251b; box-shadow: 0 5px 25px rgba(0,0,0,0.3); transition: all 1.5s ease-in-out; opacity: 0; transform: translateY(0); height: 180px; }
+        .envelope.open .letter-paper { transform: translateY(-130px) scale(1.3); opacity: 1; z-index: 4; height: auto; max-height: 75vh; overflow-y: auto; cursor: default; border: 1px solid #ebdcb9; }
+
+        .typewriter-text { white-space: pre-wrap; line-height: 1.5; display: none; text-align: left; }
+        .envelope.open .typewriter-text { display: block; }
+        
+        /* Close patch styled as a torn note sticker */
+        .close-letter { position: absolute; top: 10px; right: 15px; font-family: var(--font-sans); font-size: 0.8rem; background: #ffcccb; padding: 4px 10px; border-radius: 4px; border: 1px dashed #333; color: #333; cursor: pointer; display: none; text-transform: uppercase; }
+        .envelope.open .close-letter { display: block; }
+
+        /* ================= ENDING SECTION ================= */
+        .ending { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; z-index: 10; padding: 20px; }
+        .ending h2 { font-family: var(--font-hand); font-size: 3rem; line-height: 1.5; color: var(--coral); text-shadow: var(--glow); animation: floatAnim 4s infinite alternate; }
+        .ending span { display: block; margin: 10px 0; }
+
+        /* ================= SURPRISE MUSIC FLOATER ================= */
+        #music-toggle { position: fixed; top: 20px; right: 20px; z-index: 10000; background: var(--soft-yellow); border: 2px solid #333; box-shadow: 3px 3px 0px #333; border-radius: 50%; width: 55px; height: 55px; font-size: 1.6rem; cursor: pointer; display: none; }
+        body.magical-mode #music-toggle { display: block; animation: popIn 0.5s forwards; }
+        body.magical-mode #music-toggle:hover { transform: scale(1.1) rotate(10deg); }
+
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 4rem; }
+            .scrapbook-wall { padding: 20px 5vw; gap: 20px; }
+            .polaroid { width: 150px; }
+            .polaroid img { height: 130px; }
+            .envelope.open .letter-paper { transform: translateY(-60px) scale(1.05); width: 90vw; left: -10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="airplane-container">
+            <div class="paper-plane">✈️</div>
+        </div>
+        <div class="loading-text">Lilia's Little Universe 🌷</div>
+    </div>
+
+    <!-- CURSOR TRAIL CANVAS -->
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- MAGICAL MUSIC STICKER -->
+    <button id="music-toggle" title="Play Magical Tune">🎵</button>
+
+    <!-- BACKGROUND FLOATING ITEMS -->
+    <div id="bg-elements"></div>
+
+    <!-- RANDOM SCROLL POPUPS -->
+    <div id="scroll-popup" class="scroll-popup">✨ Main character energy.</div>
+
+    <!-- HERO PROFILE HEADER -->
+    <header class="hero">
+        <h1>Hi Lilia 🌷</h1>
+        <p>This little corner of the internet was made just for you.</p>
+    </header>
+
+    <!-- SCRAPBOOK WALL -->
+    <section class="scrapbook-section">
+        <h2 class="section-title">Memories & Moments 📸</h2>
+        <div class="scrapbook-wall" id="photo-wall">
+            <!-- Dynamic Polaroids are injected via JS -->
+        </div>
+    </section>
+
+    <!-- JOURNAL ABOUT SECTION -->
+    <section class="about-section">
+        <h2 class="section-title">Things That Make Lilia, Lilia ✨</h2>
+        <div class="about-cards">
+            <div class="doodle-card">
+                <span class="icon">📸</span>
+                <h3>Loves Photography</h3>
+                <p>Capturing the beautiful details everyone else misses.</p>
+            </div>
+            <div class="doodle-card">
+                <span class="icon">🌍</span>
+                <h3>Loves Traveling</h3>
+                <p>Always collecting new stories from around the world.</p>
+            </div>
+            <div class="doodle-card">
+                <span class="icon">💻</span>
+                <h3>Loves Tech</h3>
+                <p>Creating cool things with computer science magic.</p>
+            </div>
+            <div class="doodle-card">
+                <span class="icon">💃</span>
+                <h3>Loves Dancing</h3>
+                <p>Bringing energy, rhythm, and joy wherever she goes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- GUMBALL MACHINE COMPLIMENT DISPENSER -->
+    <section class="gumball-section">
+        <h2 class="section-title">The Compliment Machine 🍬</h2>
+        <p style="font-family:var(--font-hand); font-size:1.5rem; margin-bottom:20px;">Click the machine for a surprise!</p>
+        <div class="machine-container" onclick="dispenseCompliment()">
+            <div class="glass-dome" id="dome">
+                <span class="mini-ball" style="top:70%; left:20%">🌸</span>
+                <span class="mini-ball" style="top:60%; left:50%">✨</span>
+                <span class="mini-ball" style="top:75%; left:65%">🩷</span>
+                <span class="mini-ball" style="top:50%; left:30%">🦋</span>
+                <span class="mini-ball" style="top:40%; left:60%">🌈</span>
+            </div>
+            <div class="base">
+                <div class="knob"></div>
+                <div class="dispenser"></div>
+            </div>
+            <div id="compliment-text" class="compliment-bubble"></div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE SCRAP CANVAS DRAW AREA -->
+    <section class="doodle-area-wrapper">
+        <h2 class="section-title">Leave a Doodle 🖍️</h2>
+        <canvas id="draw-canvas" width="600" height="300"></canvas>
+        <div class="doodle-tools">
+            <button class="tool-btn tool-btn-pink" onclick="setDoodleColor('#ffb6c1')">🌸 Pink</button>
+            <button class="tool-btn tool-btn-blue" onclick="setDoodleColor('#87cefa')">🩵 Blue</button>
+            <button class="tool-btn tool-btn-peach" onclick="setDoodleColor('#ffdab9')">🍑 Peach</button>
+            <button class="tool-btn tool-btn-stamp" onclick="setStamp('swan')">Stamp 🦢</button>
+            <button class="tool-btn tool-btn-stamp" onclick="setStamp('sparkle')">Stamp ✨</button>
+            <button class="tool-btn tool-btn-clear" onclick="clearCanvas()">🧹 Clear Canvas</button>
+        </div>
+    </section>
+
+    <!-- CLOSING REMINDERS -->
+    <footer class="ending">
+        <h2>
+            <span>Keep Taking Photos 📸</span>
+            <span>Keep Exploring 🌍</span>
+            <span>Keep Dancing 💃</span>
+            <span>Keep Being You 🌷</span>
+        </h2>
+    </footer>
+
+    <!-- INNOCENT SECRET SURPRISE SWAN -->
+    <div class="secret-swan" id="secret-swan" title="???"> Swans 🦢 </div>
+
+    <!-- TRANSFORMED HIDDEN DIMENSION DIALOG -->
+    <div id="magical-overlay">
+        <div class="envelope-wrapper" id="envelope-wrapper">
+            <div class="envelope" id="envelope">
+                <div class="letter-paper">
+                    <span class="close-letter" onclick="closeLetter(event)">Close Sticker ✖</span>
+                    <div class="typewriter-text" id="typewriter-text"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ARCHITECTURAL ENGINE FUNCTIONS ================= -->
+    <script>
+        // ImgBB Array Extraction 
+        const images = [
+            "https://i.ibb.co/TDsRgbhV/photo-27-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/qFjhRJkr/photo-25-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/KzVjLVGX/photo-23-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/YTwM4Vk6/photo-22-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/tMWgHmqQ/photo-20-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/TM2MtkbP/photo-21-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/ZpGNtgQ9/photo-19-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/Zzhcf3tt/photo-17-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/kVGP6P7F/photo-15-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/LDpxgTw0/photo-12-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/cc4nJwPN/photo-10-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/rKYd1MFR/photo-11-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/jvCt4bG9/photo-9-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/8n1mftnR/photo-8-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/MyhVfmwF/photo-3-2026-06-10-15-40-32.jpg",
+            "https://i.ibb.co/6cX9jRN1/photo-2-2026-06-10-15-40-32.jpg"
+        ];
+
+        const notes = ["Beautiful! 🌸", "Perfect moment 📸", "Love this! 🩷", "So pretty ✨", "Adventures 🌍", "Art 🎨", "Scrapbook worthy 📌", "Tunisian sun 🌷"];
+        const stickers = ["🎀", "✨", "🦋", "🌸", "🩷", "🌼"];
+        const bgEmojis = ["☁️", "🌈", "🦢", "✨", "🩷", "🌸", "🦋", "📸", "🌍", "✈️", "🎀", "🌼"];
+        
+        // Exact letter content requested by user
+        const letterMessage = `Dear Lilia,
+
+Some people take photographs. You create memories.
+Some people visit places. You collect stories.
+Some people see the world. You help others feel it.
+
+Your curiosity, creativity, and passion make every moment around you a little more beautiful. Whether you're exploring new destinations across Tunisia, dancing through life, diving into technology, or capturing perfect frames through your camera, you leave a little magic everywhere you go.
+
+This small website is simply a reminder that your work, your energy, and your perspective deserve to be celebrated.`;
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 1000);
+            }, 2500);
+            
+            buildPhotoWall();
+            createBgElements();
+            initCursorTrail();
+            initDoodleCanvas();
+        });
+
+        function createBgElements() {
+            const container = document.getElementById('bg-elements');
+            for(let i=0; i<30; i++) {
+                let el = document.createElement('div');
+                el.className = 'bg-floater';
+                el.innerText = bgEmojis[Math.floor(Math.random() * bgEmojis.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.top = Math.random() * 260 + 'vh';
+                el.style.setProperty('--dur', (Math.random() * 4 + 3) + 's');
+                el.style.animationDelay = (Math.random() * 2) + 's';
+                container.appendChild(el);
+            }
+        }
+
+        function buildPhotoWall() {
+            const wall = document.getElementById('photo-wall');
+            images.forEach((src) => {
+                let polaroid = document.createElement('div');
+                polaroid.className = 'polaroid';
+                let isTape = Math.random() > 0.5;
+                let topDeco = isTape ? `<div class="tape"></div>` : `<div class="pin">📌</div>`;
+                let note = notes[Math.floor(Math.random() * notes.length)];
+                let sticker = stickers[Math.floor(Math.random() * stickers.length)];
+
+                polaroid.innerHTML = `
+                    ${topDeco}
+                    <img src="${src}" alt="Lilia Universe Framework Asset">
+                    <div class="photo-note">${note}</div>
+                    <div class="sticker">${sticker}</div>
+                `;
+                wall.appendChild(polaroid);
+            });
+        }
+
+        function initCursorTrail() {
+            const canvas = document.getElementById('cursor-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            window.addEventListener('resize', resize);
+            resize();
+
+            window.addEventListener('mousemove', (e) => {
+                if(Math.random() > 0.4) {
+                    particles.push({
+                        x: e.clientX, y: e.clientY,
+                        life: 1,
+                        vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3,
+                        char: stickers[Math.floor(Math.random() * stickers.length)]
+                    });
+                }
+            });
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for(let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.life -= 0.025;
+                    ctx.globalAlpha = Math.max(0, p.life);
+                    ctx.font = "18px Arial";
+                    ctx.fillText(p.char, p.x, p.y);
+                }
+                particles = particles.filter(p => p.life > 0);
+                requestAnimationFrame(render);
+            }
+            render();
+        }
+
+        const compliments = ["Creative ✨", "Thoughtful 🌸", "Adventurous 🦋", "Funny 🌈", "Inspiring 🩷", "Talented 📷", "Amazing 🌷"];
+        function dispenseCompliment() {
+            const bubble = document.getElementById('compliment-text');
+            bubble.innerText = compliments[Math.floor(Math.random() * compliments.length)];
+            
+            for(let i=0; i<6; i++) {
+                let conf = document.createElement('div');
+                conf.innerText = "✨";
+                conf.style.position = "absolute";
+                conf.style.left = "50%"; conf.style.top = "50%";
+                conf.style.transition = "all 0.8s ease-out";
+                conf.style.zIndex = "40";
+                document.querySelector('.machine-container').appendChild(conf);
+                
+                setTimeout(() => {
+                    conf.style.transform = `translate(${(Math.random()-0.5)*240}px, ${(Math.random()-1)*220}px) scale(1.6)`;
+                    conf.style.opacity = "0";
+                }, 10);
+                setTimeout(() => conf.remove(), 800);
+            }
+            bubble.classList.remove('pop');
+            void bubble.offsetWidth;
+            bubble.classList.add('pop');
+        }
+
+        const popupText = ["This photo is adorable 🌷", "Main character energy ✨", "Professional memory collector 📸", "Certified cool human 🦢", "Still scrolling? Good. ☁️"];
+        const popup = document.getElementById('scroll-popup');
+        window.addEventListener('scroll', () => {
+            if(Math.random() > 0.985) {
+                popup.innerText = popupText[Math.floor(Math.random() * popupText.length)];
+                popup.style.top = (Math.random() * 60 + 20) + 'vh';
+                popup.style.left = (Math.random() * 60 + 10) + 'vw';
+                popup.classList.add('show');
+                setTimeout(() => popup.classList.remove('show'), 2000);
+            }
+        });
+
+        let dCanvas, dCtx, drawing = false, dColor = '#ffb6c1', stampMode = false, currentStamp = '🦢';
+        function initDoodleCanvas() {
+            dCanvas = document.getElementById('draw-canvas');
+            dCtx = dCanvas.getContext('2d');
+            const rect = dCanvas.getBoundingClientRect();
+            dCanvas.width = rect.width; dCanvas.height = rect.height;
+            dCtx.lineCap = 'round'; dCtx.lineJoin = 'round'; dCtx.lineWidth = 5;
+
+            dCanvas.addEventListener('mousedown', startPos);
+            dCanvas.addEventListener('mouseup', endPos);
+            dCanvas.addEventListener('mousemove', draw);
+            
+            dCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPos(e.touches[0]); });
+            dCanvas.addEventListener('touchend', endPos);
+            dCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+        }
+        function startPos(e) {
+            const rect = dCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            if(stampMode) {
+                dCtx.font = "28px Arial";
+                dCtx.fillText(currentStamp, x - 14, y + 10);
+            } else {
+                drawing = true;
+                draw(e);
+            }
+        }
+        function endPos() { drawing = false; dCtx.beginPath(); }
+        function draw(e) {
+            if(!drawing || stampMode) return;
+            const rect = dCanvas.getBoundingClientRect();
+            dCtx.strokeStyle = dColor;
+            dCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            dCtx.stroke();
+            dCtx.beginPath();
+            dCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+        function setDoodleColor(c) { dColor = c; stampMode = false; dCtx.lineWidth = 5; }
+        function setStamp(type) { stampMode = true; currentStamp = type === 'swan' ? '🦢' : '✨'; }
+        function clearCanvas() { dCtx.clearRect(0,0, dCanvas.width, dCanvas.height); }
+
+        const swanBtn = document.getElementById('secret-swan');
+        const magOverlay = document.getElementById('magical-overlay');
+        const envelope = document.getElementById('envelope');
+        const twText = document.getElementById('typewriter-text');
+        let audioCtx;
+
+        function playMagicalChime() {
+            try {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+                osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.8); 
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 1.5);
+            } catch(e){}
+        }
+
+        swanBtn.addEventListener('click', () => {
+            document.body.classList.add('magical-mode');
+            magOverlay.classList.add('active');
+            playMagicalChime();
+        });
+
+        let typingTimer;
+        document.getElementById('envelope-wrapper').addEventListener('click', function(e) {
+            if(envelope.classList.contains('open')) return;
+            envelope.classList.add('open');
+            playMagicalChime();
+            
+            let i = 0;
+            twText.innerHTML = "";
+            function typeWriter() {
+                if (i < letterMessage.length) {
+                    const char = letterMessage.charAt(i);
+                    twText.innerHTML += (char === '\n') ? '<br>' : char;
+                    i++;
+                    typingTimer = setTimeout(typeWriter, 45);
+                }
+            }
+            setTimeout(typeWriter, 1200); 
+        });
+
+        function closeLetter(e) {
+            e.stopPropagation();
+            envelope.classList.remove('open');
+            clearTimeout(typingTimer);
+            setTimeout(() => {
+                magOverlay.classList.remove('active');
+            }, 500);
+        }
+
+        document.getElementById('music-toggle').addEventListener('click', () => {
+            playMagicalChime();
+        });
+    </script>
+</body>
+</html>
